@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy      as np
+import pandas     as pd
 
 class PerformanceEvaluator():
 
@@ -11,7 +12,8 @@ class PerformanceEvaluator():
                            history=None                                ):
         
         
-        self._print_errors(dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, has_trained)
+        errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, has_trained)
+        self.writeErrors(errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting)
         
         split_position = len(spei_dict['Train'])
         plotter.showSpeiData(spei_dict['Test' ], split_position)
@@ -60,9 +62,35 @@ class PerformanceEvaluator():
         print(f"\t\t\tTRAIN: {errors_dict['Train']}")
         print(f"\t\t\tTEST : {errors_dict['Test'] }")
         
-        return True
+        return errors_dict
+
+    def writeErrors(self, errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting):
+        observed_std_dev, predictions_std_dev, correlation_coefficient = self.getTaylorMetrics(spei_dict, dataTrueValues_dict, predictValues_dict)
+
+        self.metrics_df = pd.DataFrame(columns=['Agrupamento', 'Municipio Treinado', 'Municipio Previsto', 'MAE Treinamento', 'MAE Validação', 'RMSE Treinamento', 'RMSE Validação', 'MSE Treinamento', 'MSE Validação', 'R^2 Treinamento', 'R^2 Validação', 'Desvio Padrão Obs.', 'Desvio Padrão Pred. Treinamento', 'Desvio Padrão Pred. Validação', 'Coef. de Correlação Treinamento', 'Coef. de Correlação Validação'])
         
-    def getTaylorMetrics(spei_dict, dataTrueValues_dict, predictValues_dict):    
+        row = {
+            # 'Agrupamento'                    : city_cluster_name                        ,
+            'Municipio Treinado'             : city_for_training                        ,
+            'Municipio Previsto'             : city_for_predicting                      ,
+            'MAE Treinamento'                : errors_dict            ['Train']['MAE' ] ,
+            'MAE Validação'                  : errors_dict            ['Test' ]['MAE' ] ,
+            'RMSE Treinamento'               : errors_dict            ['Train']['RMSE'] ,
+            'RMSE Validação'                 : errors_dict            ['Test' ]['RMSE'] ,
+            'MSE Treinamento'                : errors_dict            ['Train']['MSE' ] ,
+            'MSE Validação'                  : errors_dict            ['Test' ]['MSE' ] ,
+            'R^2 Treinamento'                : errors_dict            ['Train']['R^2' ] ,
+            'R^2 Validação'                  : errors_dict            ['Test' ]['R^2' ] ,
+            'Desvio Padrão Obs.'             : observed_std_dev                         ,
+            'Desvio Padrão Pred. Treinamento': predictions_std_dev    ['Train']         ,
+            'Desvio Padrão Pred. Validação'  : predictions_std_dev    ['Test' ]         ,
+            'Coef. de Correlação Treinamento': correlation_coefficient['Train']         ,
+            'Coef. de Correlação Validação'  : correlation_coefficient['Test' ]
+        }
+
+        self.metrics_df = pd.concat([self.metrics_df, pd.DataFrame([row])], ignore_index=True)
+
+    def getTaylorMetrics(self, spei_dict, dataTrueValues_dict, predictValues_dict):    
      # Standard Deviation:
      predictions_std_dev       = {'Train': np.std(predictValues_dict['Train']),
                                   'Test' : np.std(predictValues_dict['Test' ])}
