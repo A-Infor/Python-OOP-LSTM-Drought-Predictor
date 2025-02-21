@@ -4,27 +4,12 @@ import pandas     as pd
 
 class PerformanceEvaluator():
 
-    def evaluate_and_plot(self, has_trained       , dataset            ,
-                           plotter                , spei_dict          ,
+    def evaluate          (self, has_trained      , spei_dict          ,
                            dataTrueValues_dict    , predictValues_dict ,
-                           monthsForPredicted_dict                     ,
-                           city_for_training      , city_for_predicting,
-                           history=None                                ):
-        
+                           city_for_training      , city_for_predicting):
         
         errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, has_trained)
         self.writeErrors(errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting)
-        
-        split_position = len(spei_dict['Train'])
-        plotter.showSpeiData(spei_dict['Test' ], split_position)
-        
-        if not has_trained:
-            plotter.drawModelLineGraph(history, None, dataset.city_name)
-            plotter.showSpeiTest(spei_dict['Test'], split_position)
-            
-        plotter.showPredictionResults(dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict)
-       
-        plotter.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict)
     
     def getError(self, actual, prediction):
         metrics = {

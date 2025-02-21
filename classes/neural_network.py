@@ -1,14 +1,15 @@
 import tensorflow as tf
 import json
+from .performance_evaluator import PerformanceEvaluator
 
 class NeuralNetwork:
 
     DATA_TYPES_LIST = ['Train', 'Test']
 
-    def __init__(self, file_name, dataset, plotter, evaluator):
+    def __init__(self, file_name, dataset, plotter):
         self.dataset        = dataset
         self.plotter        = plotter
-        self.evaluator      = evaluator
+        self.evaluator      = PerformanceEvaluator()
         
         self.configs_dict   = self._set_configs(file_name)
         self.model          = self._create_ml_model()
@@ -73,11 +74,13 @@ class NeuralNetwork:
             'Test' : self.model.predict(dataForPrediction_dict['Test' ], verbose = 0)
                              }
         
-        self.evaluator.evaluate_and_plot(self.has_trained, dataset           ,
-                                plotter                  , spei_dict         ,
-                                dataTrueValues_dict      , predictValues_dict,
-                                monthsForPredicted_dict                      ,
-                                self.dataset.city_name   , dataset.city_name ,
-                                history if not self.has_trained else None    )
+        self.evaluator.evaluate(self.has_trained       , spei_dict         ,
+                                dataTrueValues_dict    , predictValues_dict,
+                                self.dataset.city_name , dataset.city_name )
+        
+        self.plotter.plotModelPlots(spei_dict                                  ,
+                                    dataTrueValues_dict    , predictValues_dict,
+                                    monthsForPredicted_dict, self.has_trained  ,
+                                    history if not self.has_trained else None  )
         
         print('Ended: applying ML model')

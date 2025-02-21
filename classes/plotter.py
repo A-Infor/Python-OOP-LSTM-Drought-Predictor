@@ -8,7 +8,26 @@ class Plotter:
         self.monthValues          = self.dataset.get_months()
         self.speiValues           = self.dataset.get_spei()
         self.speiNormalizedValues = self.dataset.get_spei_normalized()
+
+    def plotModelPlots(self               , spei_dict             ,
+                       dataTrueValues_dict, predictValues_dict    ,
+                                            monthForPredicted_dict,
+                       has_trained        , history               ):
         
+        split_position = len(spei_dict['Train'])
+        
+        # self.showTaylorDiagrams(metrics_df)
+        # self.showResidualPlots (dataTrueValues_dict, predictValues_dict)
+        # self.showR2ScatterPlots(dataTrueValues_dict, predictValues_dict)
+        
+        self.showSpeiData(spei_dict['Test'], split_position)
+        
+        if not has_trained:
+            self.drawModelLineGraph(history, None, self.dataset.city_name)
+            self.showSpeiTest(spei_dict['Test'], split_position)
+            
+        self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict)
+        self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict)
 
     def drawModelLineGraph(self, history, city_cluster_name, city_for_training): #, showImages):
         
