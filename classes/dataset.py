@@ -45,7 +45,7 @@ class Dataset:
     
     def _create_input_output(self, data_dict, configs_dict):
         window_gap  = configs_dict['total_points']
-        dense_units = configs_dict['dense_units']
+        dense_units = configs_dict['dense_units' ]
         
         input_dict  = dict.fromkeys(Dataset.DATA_TYPES_LIST)
         output_dict = dict.fromkeys(Dataset.DATA_TYPES_LIST)
