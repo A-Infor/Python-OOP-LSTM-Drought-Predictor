@@ -4,12 +4,12 @@ import pandas     as pd
 
 class PerformanceEvaluator():
 
-    def evaluate          (self, has_trained      , spei_dict          ,
-                           dataTrueValues_dict    , predictValues_dict ,
-                           city_for_training      , city_for_predicting):
+    def evaluate          (self, has_trained   , spei_dict          ,
+                           dataTrueValues_dict , predictValues_dict ,
+                           city_cluster_name   , city_for_training  , city_for_predicting):
         
         errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, has_trained)
-        self.writeErrors(errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting)
+        self.writeErrors(errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
     
     def getError(self, actual, prediction):
         metrics = {
@@ -49,13 +49,15 @@ class PerformanceEvaluator():
         
         return errors_dict
 
-    def writeErrors(self, errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting):
+    def writeErrors(self, errors_dict  , spei_dict          ,
+                    dataTrueValues_dict, predictValues_dict ,
+                    city_cluster_name  , city_for_training  , city_for_predicting):
         observed_std_dev, predictions_std_dev, correlation_coefficient = self.getTaylorMetrics(spei_dict, dataTrueValues_dict, predictValues_dict)
 
         self.metrics_df = pd.DataFrame(columns=['Agrupamento', 'Municipio Treinado', 'Municipio Previsto', 'MAE Treinamento', 'MAE Validação', 'RMSE Treinamento', 'RMSE Validação', 'MSE Treinamento', 'MSE Validação', 'R^2 Treinamento', 'R^2 Validação', 'Desvio Padrão Obs.', 'Desvio Padrão Pred. Treinamento', 'Desvio Padrão Pred. Validação', 'Coef. de Correlação Treinamento', 'Coef. de Correlação Validação'])
         
         row = {
-            # 'Agrupamento'                    : city_cluster_name                        ,
+            'Agrupamento'                    : city_cluster_name                        ,
             'Municipio Treinado'             : city_for_training                        ,
             'Municipio Previsto'             : city_for_predicting                      ,
             'MAE Treinamento'                : errors_dict            ['Train']['MAE' ] ,

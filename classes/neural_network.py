@@ -44,7 +44,6 @@ class NeuralNetwork:
         for _ in range(3):
             model.add(tf.keras.layers.Dense(units=self.configs_dict['dense_units'], activation=self.configs_dict['activation'][1]))
         model.compile(loss=self.configs_dict['loss'], metrics=self.configs_dict['metrics'], optimizer=self.configs_dict['optimizer'])
-        
         print('Ended  : creation of ML model')
         
         return model
@@ -74,9 +73,9 @@ class NeuralNetwork:
             'Test' : self.model.predict(dataForPrediction_dict['Test' ], verbose = 0)
                              }
         
-        self.evaluator.evaluate(self.has_trained       , spei_dict         ,
-                                dataTrueValues_dict    , predictValues_dict,
-                                self.dataset.city_name , dataset.city_name )
+        self.evaluator.evaluate(self.has_trained              , spei_dict              ,
+                                dataTrueValues_dict           , predictValues_dict     ,
+                                self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
         self.plotter.plotModelPlots(spei_dict                                  ,
                                     dataTrueValues_dict    , predictValues_dict,

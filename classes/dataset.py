@@ -6,10 +6,11 @@ class Dataset:
     
     DATA_TYPES_LIST = ['Train', 'Test']
     
-    def __init__(self, city_name, root_dir, xlsx):
-        self.city_name = city_name
-        self.df        = pd.read_excel(root_dir + xlsx)
-        self.df.rename(columns={'Series 1': 'SPEI Real'}, inplace=True)
+    def __init__(self, city_name, city_cluster_name, root_dir, xlsx):
+        self.city_name         = city_name
+        self.city_cluster_name = city_cluster_name
+        self.df                = pd.read_excel(root_dir + xlsx)
+        self.df.rename(columns = {'Series 1': 'SPEI Real'}, inplace=True)
 
     def get_months(self):
         return self.df.index.to_numpy()
