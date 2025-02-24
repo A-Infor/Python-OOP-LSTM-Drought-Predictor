@@ -1,4 +1,5 @@
 import statistics
+import os
 import matplotlib.pyplot as     plt
 import numpy             as     np
 import skill_metrics     as     sm
@@ -12,10 +13,25 @@ class Plotter:
         self.speiValues           = self.dataset.get_spei()
         self.speiNormalizedValues = self.dataset.get_spei_normalized()
 
-    def plotModelPlots(self               , spei_dict             ,
-                       dataTrueValues_dict, predictValues_dict    ,
-                                            monthForPredicted_dict,
-                       has_trained        , history               ):
+    def _saveFig(self, plot, filename, city_cluster_name=None, city_for_training=None, city_for_predicting=None):
+        if city_for_predicting:
+            FILEPATH = f'./Images/cluster {city_cluster_name}/model {city_for_training}/city {city_for_predicting}/'
+            os.makedirs(FILEPATH, exist_ok=True)
+            plt.savefig(FILEPATH + filename + f' - Model {city_for_training} applied to {city_for_predicting}.png')
+        elif city_for_training:
+            FILEPATH = f'./Images/cluster {city_cluster_name}/model {city_for_training}/'
+            os.makedirs(FILEPATH, exist_ok=True)
+            plt.savefig(FILEPATH + filename + f' - Model {city_for_training}.png')
+        else:
+            FILEPATH = './Images/'
+            os.makedirs(FILEPATH, exist_ok=True)
+            plt.savefig(FILEPATH + filename, bbox_inches="tight")
+
+    def plotModelPlots(self                  , spei_dict         ,
+                       dataTrueValues_dict   , predictValues_dict,
+                       monthForPredicted_dict, has_trained       ,
+                       history                                   ,
+                       city_cluster_name     , city_for_training , city_for_predicting):
         
         split_position = len(spei_dict['Train'])
         
@@ -23,16 +39,101 @@ class Plotter:
         # self.showResidualPlots (dataTrueValues_dict, predictValues_dict)
         # self.showR2ScatterPlots(dataTrueValues_dict, predictValues_dict)
         
-        self.showSpeiData(spei_dict['Test'], split_position)
+        self.showSpeiData(spei_dict['Test'], split_position, city_cluster_name, city_for_training, city_for_predicting)
         
         if not has_trained:
             self.drawModelLineGraph(history, None, self.dataset.city_name)
             self.showSpeiTest(spei_dict['Test'], split_position)
             
-        self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict)
-        self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict)
+        self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
 
-    def drawModelLineGraph(self, history, city_cluster_name, city_for_training): #, showImages):
+    def showSpeiData(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
+        plt.figure()
+        plt.subplot(2,1,1)
+        plt.plot(self.monthValues,self.speiValues,label='SPEI Original')
+        plt.xlabel('Ano')
+        plt.ylabel('SPEI')
+        plt.title(f'SPEI Data - {self.dataset.city_name}')
+        plt.legend()
+    
+        plt.subplot(2,1,2)
+        plt.plot(self.monthValues,self.speiNormalizedValues,label='Parcela de Treinamento')
+        plt.xlabel('Ano')
+        plt.ylabel('SPEI (Normalizado)')
+        plt.title(f'{self.dataset.city_name}')
+        plt.plot(self.monthValues[split:],test_data,'k',label='Parcela de Teste')
+        plt.legend()
+        #plt.show()
+        
+        self._saveFig(plt, 'SPEI Data', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+    
+    def showSpeiTest(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
+        y1positive = np.array(self.speiValues)>=0
+        y1negative = np.array(self.speiValues)<=0
+    
+        plt.figure()
+        plt.fill_between(self.monthValues, self.speiValues,y2=0,where=y1positive,
+        color='green',alpha=0.5,interpolate=False, label='índices SPEI positivos')
+        plt.fill_between(self.monthValues, self.speiValues,y2=0,where=y1negative,
+        color='red',alpha=0.5,interpolate=False, label='índices SPEI negativos')
+        plt.xlabel('Ano')
+        plt.ylabel('SPEI')        
+        plt.title(f'SPEI Data - {self.dataset.city_name}')
+        plt.legend()
+        #plt.show()
+        
+        self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+        
+    def showPredictionResults(self, dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting):
+        trueValues  = np.append(dataTrueValues_dict['Train'], dataTrueValues_dict['Test'])
+        predictions = np.append( predictValues_dict['Train'],  predictValues_dict['Test'])
+    
+        reshapedMonth = np.append(monthsForPredicted_dict['Train'], monthsForPredicted_dict['Test'])
+    
+        speiMaxValue = np.max(self.speiValues)
+        speiMinValue = np.min(self.speiValues)
+    
+        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
+        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
+    
+        plt.figure()
+        plt.plot(reshapedMonth,  trueValues_denormalized)
+        plt.plot(reshapedMonth, predictions_denormalized)
+        plt.axvline(monthsForPredicted_dict['Train'][-1][-1], color='r')
+        plt.legend(['Verdadeiros', 'Previstos'])
+        plt.xlabel('Data')
+        plt.ylabel('SPEI')
+        plt.title(f'Valores verdadeiros e previstos para o final das séries. - {self.dataset.city_name}')
+        #plt.show()
+        
+        self._saveFig(plt, 'Previsao', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+    
+    def showPredictionsDistribution(self, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting):
+        trueValues  = np.append(dataTrueValues_dict['Train'], dataTrueValues_dict['Test'])
+        predictions = np.append( predictValues_dict['Train'],  predictValues_dict['Test'])
+    
+        speiMaxValue = np.max(self.speiValues)
+        speiMinValue = np.min(self.speiValues)
+    
+        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
+        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
+    
+        plt.figure()
+        plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
+        plt.xlabel('SPEI Verdadeiros')
+        plt.ylabel('SPEI Previstos')
+        plt.title(f'{self.dataset.city_name}')
+        plt.axline((0, 0), slope=1)
+        #plt.show()
+        
+        self._saveFig(plt, 'distribuiçãoDoSPEI', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+
+    def drawModelLineGraph(self, history, city_cluster_name, city_for_training):
         
         fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True)
         
@@ -57,84 +158,8 @@ class Plotter:
         
         plt.suptitle(f'Model {city_for_training}')
     
-        # if(showImages):
-            # plt.show()
-        
-        # saveFig(plt, 'Line Graph.', city_cluster_name, city_for_training)
-        # plt.close()
-
-    def showSpeiData(self, test_data, split):
-        plt.figure()
-        plt.subplot(2,1,1)
-        plt.plot(self.monthValues,self.speiValues,label='SPEI Original')
-        plt.xlabel('Ano')
-        plt.ylabel('SPEI')
-        plt.title(f'SPEI Data - {self.dataset.city_name}')
-        plt.legend()
-    
-        plt.subplot(2,1,2)
-        plt.plot(self.monthValues,self.speiNormalizedValues,label='Parcela de Treinamento')
-        plt.xlabel('Ano')
-        plt.ylabel('SPEI (Normalizado)')
-        plt.title(f'{self.dataset.city_name}')
-        plt.plot(self.monthValues[split:],test_data,'k',label='Parcela de Teste')
-        plt.legend()
-        plt.show()
-    
-    def showSpeiTest(self, test_data, split):
-        y1positive = np.array(self.speiValues)>=0
-        y1negative = np.array(self.speiValues)<=0
-    
-        plt.figure()
-        plt.fill_between(self.monthValues, self.speiValues,y2=0,where=y1positive,
-        color='green',alpha=0.5,interpolate=False, label='índices SPEI positivos')
-        plt.fill_between(self.monthValues, self.speiValues,y2=0,where=y1negative,
-        color='red',alpha=0.5,interpolate=False, label='índices SPEI negativos')
-        plt.xlabel('Ano')
-        plt.ylabel('SPEI')        
-        plt.title(f'SPEI Data - {self.dataset.city_name}')
-        plt.legend()
-        plt.show()
-        
-    def showPredictionResults(self, dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict):
-        trueValues  = np.append(dataTrueValues_dict['Train'], dataTrueValues_dict['Test'])
-        predictions = np.append( predictValues_dict['Train'],  predictValues_dict['Test'])
-    
-        reshapedMonth = np.append(monthsForPredicted_dict['Train'], monthsForPredicted_dict['Test'])
-    
-        speiMaxValue = np.max(self.speiValues)
-        speiMinValue = np.min(self.speiValues)
-    
-        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
-        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
-    
-        plt.figure()
-        plt.plot(reshapedMonth,  trueValues_denormalized)
-        plt.plot(reshapedMonth, predictions_denormalized)
-        plt.axvline(monthsForPredicted_dict['Train'][-1][-1], color='r')
-        plt.legend(['Verdadeiros', 'Previstos'])
-        plt.xlabel('Data')
-        plt.ylabel('SPEI')
-        plt.title(f'Valores verdadeiros e previstos para o final das séries. - {self.dataset.city_name}')
-        plt.show()
-    
-    def showPredictionsDistribution(self, dataTrueValues_dict, predictValues_dict):
-        trueValues  = np.append(dataTrueValues_dict['Train'], dataTrueValues_dict['Test'])
-        predictions = np.append( predictValues_dict['Train'],  predictValues_dict['Test'])
-    
-        speiMaxValue = np.max(self.speiValues)
-        speiMinValue = np.min(self.speiValues)
-    
-        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
-        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
-    
-        plt.figure()
-        plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
-        plt.xlabel('SPEI Verdadeiros')
-        plt.ylabel('SPEI Previstos')
-        plt.title(f'{self.dataset.city_name}')
-        plt.axline((0, 0), slope=1)
-        plt.show()
+        self._saveFig(plt, 'Line Graph.', city_cluster_name, city_for_training)
+        plt.close()
 
     def define_box_properties(self, plot_name, color_code, label):
         	for k, v in plot_name.items():
@@ -144,7 +169,7 @@ class Plotter:
         	plt.plot([], c=color_code, label=label)
         	plt.legend()
     
-    def drawMetricsBoxPlots(self, metrics_df, showImages):   
+    def drawMetricsBoxPlots(self, metrics_df):   
         # Creation of the empty dictionary:
         list_of_metrics_names = ['MAE', 'RMSE', 'MSE']
         list_of_metrics_types = ['Treinamento', 'Validação']
@@ -180,10 +205,11 @@ class Plotter:
             plt.ylabel(f'{metric_name} values')
             plt.grid(axis='y', linestyle=':', color='gray', linewidth=0.7)
             
-            if(showImages):
-                plt.show()
+            self._saveFig(plt, f'Box Plots. {metric_name}.')
+            plt.close()               
+        
     
-    def drawMetricsBarPlots(self, metrics_df, showImages):
+    def drawMetricsBarPlots(self, metrics_df):
         # Creation of the empty dictionary:
         list_of_metrics_names = ['MAE', 'RMSE', 'MSE', 'R^2']
         list_of_metrics_types = ['Treinamento', 'Validação']
@@ -217,8 +243,8 @@ class Plotter:
             plt.title ("Comparison of performance of different models")
             plt.legend()
             
-            if(showImages):
-                plt.show()
+            self._saveFig(plt, f'Bar Plots. {metric_name}.')
+            plt.close()
     
     def define_normal_distribution(self, axis, x_values):
         mu, std    = norm.fit     (x_values)
@@ -228,7 +254,7 @@ class Plotter:
         
         return x, p
     
-    def drawMetricsHistograms(self, metrics_df, showImages):
+    def drawMetricsHistograms(self, metrics_df):
         # Creation of the empty dictionary:
         list_of_metrics_names = ['MAE', 'RMSE']
         list_of_metrics_types = ['Treinamento', 'Validação']
@@ -274,10 +300,10 @@ class Plotter:
             plt.suptitle(f'Histograms of model {model_name}')
             fig.tight_layout()
             
-            if(showImages):
-                plt.show()
+            self._saveFig(plt, 'Histograms.', model_name, model_name)
+            plt.close()
     
-    def showResidualPlots(self, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting, showImages):
+    def showResidualPlots(self, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):
         residuals        = {'Train': true_values_dict['Train'] - predicted_values_dict['Train'],
                             'Test' : true_values_dict['Test' ] - predicted_values_dict['Test' ]}
         
@@ -287,10 +313,11 @@ class Plotter:
             plt.xlabel('Predicted Values')
             plt.ylabel('Residuals')
             plt.title(f'Residual Plot for {training_or_testing} data. Model {city_for_training} applied to {city_for_predicting}.')
-            if(showImages):
-                plt.show()
+            
+            self._saveFig(plt, f'Residual Plots {training_or_testing}', city_cluster_name, city_for_training, city_for_predicting)
+            plt.close()
     
-    def showR2ScatterPlots(self, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting, showImages):    
+    def showR2ScatterPlots(self, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):    
         for training_or_testing in ['Train', 'Test']:
             plt.scatter(true_values_dict[training_or_testing], predicted_values_dict[training_or_testing], label = 'R²')
             
@@ -304,10 +331,10 @@ class Plotter:
             plt.ylabel('Predicted values')
             plt.legend()
                 
-            if(showImages):
-                plt.show()
+            self._saveFig(plt, f'R² Scatter Plot {training_or_testing}', city_cluster_name, city_for_training, city_for_predicting)
+            plt.close()
     
-    def drawMetricsRadarPlots(self, metrics_df, showImages):
+    def drawMetricsRadarPlots(self, metrics_df):
         # Creation of the empty dictionary:
         list_of_metrics_names = ['MAE', 'RMSE', 'MSE', 'R^2']
         list_of_metrics_types = ['Treinamento', 'Validação']
@@ -351,10 +378,10 @@ class Plotter:
                 plt.title (f'Performance of model {model_name} ({metric_type})')
                 plt.tight_layout()
                 
-                if(showImages):
-                    plt.show()
+                self._saveFig(plt, f'Radar Plots. {model_name}. {metric_name}. {metric_type}.', model_name, model_name)
+                plt.close()
     
-    def showTaylorDiagrams(self, metrics_df, city_cluster_name, city_for_training, city_for_predicting, showImages):
+    def showTaylorDiagrams(self, metrics_df, city_cluster_name, city_for_training, city_for_predicting):
         
         label =          ['Obs', 'Train', 'Test']
         sdev  = np.array([metrics_df.iloc[-1]['Desvio Padrão Obs.'             ] ,
@@ -386,5 +413,5 @@ class Plotter:
         plt.suptitle (f'Model {city_for_training} applied to {city_for_predicting}')
         fig.tight_layout(pad = 1.5)
         
-        if(showImages):
-            plt.show()
+        self._saveFig(plt, 'Taylor Diagram.', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()

@@ -78,8 +78,9 @@ class NeuralNetwork:
                                 self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
         self.plotter.plotModelPlots(spei_dict                                  ,
-                                    dataTrueValues_dict    , predictValues_dict,
-                                    monthsForPredicted_dict, self.has_trained  ,
-                                    history if not self.has_trained else None  )
+                                    dataTrueValues_dict           , predictValues_dict    ,
+                                    monthsForPredicted_dict       , self.has_trained      ,
+                                    history if not self.has_trained else None             ,
+                                    self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
         print('Ended: applying ML model')
