@@ -10,6 +10,8 @@ class PerformanceEvaluator():
         
         errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, has_trained)
         self.writeErrors(errors_dict, spei_dict, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
+        
+        return self.metrics_df
     
     def getError(self, actual, prediction):
         metrics = {

@@ -65,7 +65,12 @@ class NeuralNetwork:
          monthsForPrediction_dict, monthsForPredicted_dict) = dataset.format_data_for_model(self.configs_dict)
        
         if not self.has_trained:
-            history = self._train_ml_model(dataForPrediction_dict, dataTrueValues_dict)
+            history        = self._train_ml_model(dataForPrediction_dict, dataTrueValues_dict)
+            split_position = len(spei_dict['Train'])
+            
+            plotter.drawModelLineGraph(history                          , self.dataset.city_cluster_name, self.dataset.city_name)
+            plotter.showSpeiTest      (spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+            plotter.showSpeiData      (spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
             
         print('Started: applying ML model')        
         predictValues_dict = {
@@ -73,14 +78,14 @@ class NeuralNetwork:
             'Test' : self.model.predict(dataForPrediction_dict['Test' ], verbose = 0)
                              }
         
-        self.evaluator.evaluate(self.has_trained              , spei_dict              ,
+        metrics_df = self.evaluator.evaluate(self.has_trained              , spei_dict              ,
                                 dataTrueValues_dict           , predictValues_dict     ,
                                 self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
         self.plotter.plotModelPlots(spei_dict                                  ,
                                     dataTrueValues_dict           , predictValues_dict    ,
                                     monthsForPredicted_dict       , self.has_trained      ,
-                                    history if not self.has_trained else None             ,
+                                    history if not self.has_trained else None             , metrics_df       ,
                                     self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
         print('Ended: applying ML model')

@@ -30,35 +30,26 @@ class Plotter:
     def plotModelPlots(self                  , spei_dict         ,
                        dataTrueValues_dict   , predictValues_dict,
                        monthForPredicted_dict, has_trained       ,
-                       history                                   ,
+                       history                                   , metrics_df         ,
                        city_cluster_name     , city_for_training , city_for_predicting):
         
-        split_position = len(spei_dict['Train'])
-        
-        # self.showTaylorDiagrams(metrics_df)
-        self.showResidualPlots (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
-        self.showR2ScatterPlots(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
-        
-        self.showSpeiData(spei_dict['Test'], split_position, city_cluster_name, city_for_training, city_for_predicting)
-        
-        if not has_trained:
-            self.drawModelLineGraph(history, None, self.dataset.city_name)
-            self.showSpeiTest(spei_dict['Test'], split_position)
-            
-        self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
+        self.showResidualPlots          (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showR2ScatterPlots         (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting)
 
     def showSpeiData(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
         plt.figure ()
         plt.subplot(2,1,1)
-        plt.plot   (self.monthValues,self.speiValues,label='SPEI Original')
+        plt.plot   (self.monthValues, self.speiValues          , label='SPEI Original'         )
         plt.xlabel ('Ano')
         plt.ylabel ('SPEI')
         plt.title  ('SPEI Data - ' + city_for_training)
         plt.legend ()
     
         plt.subplot(2,1,2)
-        plt.plot   (self.monthValues,self.speiNormalizedValues,label='Parcela de Treinamento')
+        plt.plot   (self.monthValues, self.speiNormalizedValues, label='Parcela de Treinamento')
         plt.xlabel ('Ano')
         plt.ylabel ('SPEI (Normalizado)')
         plt.plot   (self.monthValues[split:],test_data,'k',label='Parcela de Teste')
