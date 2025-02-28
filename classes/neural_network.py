@@ -89,3 +89,5 @@ class NeuralNetwork:
                                     self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
         print('Ended: applying ML model')
+        
+        return metrics_df

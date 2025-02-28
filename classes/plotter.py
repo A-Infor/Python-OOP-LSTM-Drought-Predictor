@@ -38,7 +38,13 @@ class Plotter:
         self.showR2ScatterPlots         (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting)
-
+    
+    def plotMetricsPlots(self, metrics_df):
+        self.drawMetricsBoxPlots   (metrics_df)
+        self.drawMetricsBarPlots   (metrics_df)
+        self.drawMetricsHistograms (metrics_df)
+        self.drawMetricsRadarPlots (metrics_df)
+    
     def showSpeiData(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
         plt.figure ()
         plt.subplot(2,1,1)
@@ -241,12 +247,16 @@ class Plotter:
             plt.close()
     
     def define_normal_distribution(self, axis, x_values):
-        mu  , std  = norm.fit     (x_values)
-        xmin, xmax = axis.get_xlim()
-        x          = np.linspace  (xmin, xmax, 100)
-        p          = norm.pdf     (x   , mu  , std)
-        
-        return x, p
+        if np.std(x_values) > 0:
+            mu  , std  = norm.fit     (x_values)
+            xmin, xmax = axis.get_xlim()
+            x          = np.linspace  (xmin, xmax, 100)
+            p          = norm.pdf     (x   , mu  , std)
+            
+            return x, p
+        else:
+            print('Info: normal distribution <= 0')
+            return 0, 0
     
     def drawMetricsHistograms(self, metrics_df):
         # Creation of the empty dictionary:
