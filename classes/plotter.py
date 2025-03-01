@@ -27,6 +27,10 @@ class Plotter:
             os.makedirs(FILEPATH, exist_ok=True)
             plt.savefig(FILEPATH + filename, bbox_inches="tight")
 
+    def plotDatasetPlots(self, dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting):
+        self.showSpeiData(dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
+        self.showSpeiTest(dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
+
     def plotModelPlots(self                  , spei_dict         ,
                        dataTrueValues_dict   , predictValues_dict,
                        monthForPredicted_dict, has_trained       ,
@@ -45,34 +49,41 @@ class Plotter:
         self.drawMetricsHistograms (metrics_df)
         self.drawMetricsRadarPlots (metrics_df)
     
-    def showSpeiData(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
+    def showSpeiData(self, dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting):
+        monthValues          = dataset.get_months         ()
+        speiValues           = dataset.get_spei           ()
+        speiNormalizedValues = dataset.get_spei_normalized()
+        
         plt.figure ()
         plt.subplot(2,1,1)
-        plt.plot   (self.monthValues, self.speiValues          , label='SPEI Original'         )
+        plt.plot   (monthValues, speiValues          , label='SPEI Original'         )
         plt.xlabel ('Ano')
         plt.ylabel ('SPEI')
         plt.title  ('SPEI Data - ' + city_for_training)
         plt.legend ()
     
         plt.subplot(2,1,2)
-        plt.plot   (self.monthValues, self.speiNormalizedValues, label='Parcela de Treinamento')
+        plt.plot   (monthValues, speiNormalizedValues, label='Parcela de Treinamento')
         plt.xlabel ('Ano')
         plt.ylabel ('SPEI (Normalizado)')
-        plt.plot   (self.monthValues[split:],test_data,'k',label='Parcela de Teste')
+        plt.plot   (monthValues[split:],spei_test,'k',label='Parcela de Teste')
         plt.legend ()
         #plt.show()
         
         self._saveFig(plt, 'SPEI Data', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def showSpeiTest(self, test_data, split, city_cluster_name, city_for_training, city_for_predicting):
+    def showSpeiTest(self, dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting):
+        monthValues          = dataset.get_months()
+        speiValues           = dataset.get_spei  ()
+        
         y1positive = np.array(self.speiValues)>=0
         y1negative = np.array(self.speiValues)<=0
     
         plt.figure()
-        plt.fill_between(self.monthValues, self.speiValues, y2=0, where=y1positive,
+        plt.fill_between(monthValues, speiValues, y2=0, where=y1positive,
                          color='green', alpha=0.5, interpolate=False, label='índices SPEI positivos')
-        plt.fill_between(self.monthValues, self.speiValues, y2=0, where=y1negative,
+        plt.fill_between(monthValues, speiValues, y2=0, where=y1negative,
                          color='red'  , alpha=0.5, interpolate=False, label='índices SPEI negativos')
         plt.xlabel      ('Ano')
         plt.ylabel      ('SPEI')        

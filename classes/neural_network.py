@@ -64,13 +64,10 @@ class NeuralNetwork:
            dataForPrediction_dict,     dataTrueValues_dict,
          monthsForPrediction_dict, monthsForPredicted_dict) = dataset.format_data_for_model(self.configs_dict)
        
+        split_position = len(spei_dict['Train'])
         if not self.has_trained:
             history        = self._train_ml_model(dataForPrediction_dict, dataTrueValues_dict)
-            split_position = len(spei_dict['Train'])
-            
-            plotter.drawModelLineGraph(history                          , self.dataset.city_cluster_name, self.dataset.city_name)
-            plotter.showSpeiTest      (spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
-            plotter.showSpeiData      (spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+            plotter.drawModelLineGraph           (history, self.dataset.city_cluster_name, self.dataset.city_name)
             
         print('Started: applying ML model')        
         predictValues_dict = {
@@ -82,6 +79,7 @@ class NeuralNetwork:
                                 dataTrueValues_dict           , predictValues_dict     ,
                                 self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
+        plotter.plotDatasetPlots   (dataset, spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         self.plotter.plotModelPlots(spei_dict                                  ,
                                     dataTrueValues_dict           , predictValues_dict    ,
                                     monthsForPredicted_dict       , self.has_trained      ,
