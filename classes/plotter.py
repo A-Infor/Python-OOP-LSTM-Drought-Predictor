@@ -59,7 +59,7 @@ class Plotter:
         plt.plot   (monthValues, speiValues          , label='SPEI Original'         )
         plt.xlabel ('Ano')
         plt.ylabel ('SPEI')
-        plt.title  ('SPEI Data - ' + city_for_training)
+        plt.title  (f'SPEI Data - {city_for_predicting}')
         plt.legend ()
     
         plt.subplot(2,1,2)
