@@ -336,7 +336,7 @@ class Plotter:
             plt.axhline(y=0, color='r', linestyle='--')
             plt.xlabel('Predicted Values')
             plt.ylabel('Residuals')
-            plt.title (f'Residual Plot for {training_or_testing} data. Model {city_for_training} applied to {city_for_predicting}.')
+            plt.title (f'Residual Plot for {training_or_testing} data.\nModel {city_for_training} applied to {city_for_predicting}.')
             
             self._saveFig(plt, f'Residual Plots {training_or_testing}', city_cluster_name, city_for_training, city_for_predicting)
             plt.close()
