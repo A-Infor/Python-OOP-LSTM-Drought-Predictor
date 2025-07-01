@@ -4,7 +4,7 @@ from .performance_evaluator import PerformanceEvaluator
 
 class NeuralNetwork:
 
-    DATA_TYPES_LIST = ['Train', 'Test']
+    DATA_TYPES_LIST = ['80%', '20%']
 
     def __init__(self, file_name, dataset, plotter):
         self.dataset        = dataset
@@ -51,11 +51,11 @@ class NeuralNetwork:
     def _train_ml_model(self, dataForPrediction_dict, dataTrueValues_dict):
         print(f'Started: training of ML model {self.dataset.city_name} (may take a while)')
         history = self.model.fit(
-            dataForPrediction_dict['Train'],
-            dataTrueValues_dict   ['Train'],
+            dataForPrediction_dict['80%'],
+            dataTrueValues_dict   ['80%'],
             epochs=self.configs_dict['numberOfEpochs'], batch_size=1, verbose=0)
         self.has_trained = True
-        print(f'Ended  : training of ML model {self.dataset.city_name}')
+        print(f'Ended  : 80% of ML model {self.dataset.city_name}')
         
         return history
     
@@ -67,22 +67,22 @@ class NeuralNetwork:
            dataForPrediction_dict,     dataTrueValues_dict,
          monthsForPrediction_dict, monthsForPredicted_dict) = dataset.format_data_for_model(self.configs_dict)
        
-        split_position = len(spei_dict['Train'])
+        split_position = len(spei_dict['80%'])
         if not self.has_trained:
             history        = self._train_ml_model(dataForPrediction_dict, dataTrueValues_dict)
             plotter.drawModelLineGraph           (history, self.dataset.city_cluster_name, self.dataset.city_name)
             
         print(f'Started: applying ML model {self.dataset.city_name} to city {dataset.city_name}')
         predictValues_dict = {
-            'Train': self.model.predict(dataForPrediction_dict['Train'], verbose = 0),
-            'Test' : self.model.predict(dataForPrediction_dict['Test' ], verbose = 0)
+            '80%': self.model.predict(dataForPrediction_dict['80%'], verbose = 0),
+            '20%' : self.model.predict(dataForPrediction_dict['20%' ], verbose = 0)
                              }
         
         metrics_df = self.evaluator.evaluate(self.has_trained , spei_dict              ,
                                 dataTrueValues_dict           , predictValues_dict     ,
                                 self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
-        plotter.plotDatasetPlots   (dataset, spei_dict['Test'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        plotter.plotDatasetPlots   (dataset, spei_dict['20%'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         self.plotter.plotModelPlots(spei_dict                                  ,
                                     dataTrueValues_dict           , predictValues_dict    ,
                                     monthsForPredicted_dict       , self.has_trained      ,

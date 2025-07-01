@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 class Dataset:
     
-    DATA_TYPES_LIST = ['Train', 'Test']
+    DATA_TYPES_LIST = ['80%', '20%']
     
     def __init__(self, city_name, city_cluster_name, root_dir, xlsx):
         self.city_name         = city_name
@@ -23,7 +23,7 @@ class Dataset:
         return ( (spei - spei.min()) / (spei.max() - spei.min()) )
     
     def format_data_for_model(self, configs_dict):
-        #(SPEI/months)_dict.keys() = ['Train', 'Test']
+        #(SPEI/months)_dict.keys() = ['80%', '20%']
         spei_dict               , months_dict             = self._train_test_split(configs_dict['parcelDataTrain'])
         
         #         IN            ,           OUT           :
@@ -39,8 +39,8 @@ class Dataset:
         spei_dict   = dict.fromkeys(Dataset.DATA_TYPES_LIST)
         months_dict = dict.fromkeys(Dataset.DATA_TYPES_LIST)
         
-        (  spei_dict['Train'],   spei_dict['Test'],
-         months_dict['Train'], months_dict['Test']) = train_test_split(self.get_spei_normalized(), self.get_months(), train_size=train_size, shuffle=False)
+        (  spei_dict['80%'],   spei_dict['20%'],
+         months_dict['80%'], months_dict['20%']) = train_test_split(self.get_spei_normalized(), self.get_months(), train_size=train_size, shuffle=False)
         
         return spei_dict, months_dict
     
