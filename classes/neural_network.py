@@ -55,7 +55,6 @@ class NeuralNetwork:
             dataTrueValues_dict   ['Train'],
             epochs=self.configs_dict['numberOfEpochs'], batch_size=1, verbose=0)
         self.has_trained = True
-        self.has_trained = True
         print(f'Ended  : training of ML model {self.dataset.city_name}')
         
         return history
