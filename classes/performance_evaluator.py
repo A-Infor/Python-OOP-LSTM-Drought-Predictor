@@ -5,7 +5,10 @@ import pandas     as pd
 class PerformanceEvaluator():
     
     def __init__(self):
-        self.metrics_df = pd.DataFrame(columns=['Agrupamento', 'Municipio Treinado', 'Municipio Previsto', 'MAE 80%', 'MAE 20%', 'RMSE 80%', 'RMSE 20%', 'MSE 80%', 'MSE 20%', 'R^2 80%', 'R^2 20%', 'Desvio Padrão Obs.', 'Desvio Padrão Pred. 80%', 'Desvio Padrão Pred. 20%', 'Coef. de Correlação 80%', 'Coef. de Correlação 20%'])
+        COLUMNS = ['Agrupamento', 'Municipio Treinado', 'Municipio Previsto', 'MAE 80%', 'MAE 20%', 'RMSE 80%', 'RMSE 20%', 'MSE 80%', 'MSE 20%', 'R^2 80%', 'R^2 20%', 'Desvio Padrão Obs.', 'Desvio Padrão Pred. 80%', 'Desvio Padrão Pred. 20%', 'Coef. de Correlação 80%', 'Coef. de Correlação 20%']
+        
+        self.metrics_central   = pd.DataFrame(columns=COLUMNS)
+        self.metrics_bordering = pd.DataFrame(columns=COLUMNS)
         
     def evaluate          (self, has_trained   , spei_dict          ,
                            dataTrueValues_dict , predictValues_dict ,
@@ -14,9 +17,9 @@ class PerformanceEvaluator():
         errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict  ,
                                          city_for_training  , city_for_predicting , has_trained)
         self.writeErrors(errors_dict      , spei_dict        , dataTrueValues_dict, predictValues_dict,
-                         city_cluster_name, city_for_training, city_for_predicting)
+                         city_cluster_name, city_for_training, city_for_predicting, has_trained  )
         
-        return self.metrics_df
+        return self.metrics_central, self.metrics_bordering
     
     def getError(self, actual, prediction):
         metrics = {
@@ -58,29 +61,32 @@ class PerformanceEvaluator():
 
     def writeErrors(self, errors_dict  , spei_dict          ,
                     dataTrueValues_dict, predictValues_dict ,
-                    city_cluster_name  , city_for_training  , city_for_predicting):
+                    city_cluster_name  , city_for_training  , city_for_predicting, has_trained):
         observed_std_dev, predictions_std_dev, correlation_coefficient = self.getTaylorMetrics(spei_dict, dataTrueValues_dict, predictValues_dict)
         
         row = {
-            'Agrupamento'                    : city_cluster_name                        ,
-            'Municipio Treinado'             : city_for_training                        ,
-            'Municipio Previsto'             : city_for_predicting                      ,
-            'MAE 80%'                : errors_dict            ['80%']['MAE' ] ,
-            'MAE 20%'                  : errors_dict            ['20%' ]['MAE' ] ,
-            'RMSE 80%'               : errors_dict            ['80%']['RMSE'] ,
-            'RMSE 20%'                 : errors_dict            ['20%' ]['RMSE'] ,
-            'MSE 80%'                : errors_dict            ['80%']['MSE' ] ,
-            'MSE 20%'                  : errors_dict            ['20%' ]['MSE' ] ,
-            'R^2 80%'                : errors_dict            ['80%']['R^2' ] ,
-            'R^2 20%'                  : errors_dict            ['20%' ]['R^2' ] ,
-            'Desvio Padrão Obs.'             : observed_std_dev                         ,
-            'Desvio Padrão Pred. 80%': predictions_std_dev    ['80%']         ,
-            'Desvio Padrão Pred. 20%'  : predictions_std_dev    ['20%' ]         ,
-            'Coef. de Correlação 80%': correlation_coefficient['80%']         ,
-            'Coef. de Correlação 20%'  : correlation_coefficient['20%' ]
+            'Agrupamento'             : city_cluster_name                       ,
+            'Municipio Treinado'      : city_for_training                       ,
+            'Municipio Previsto'      : city_for_predicting                     ,
+            'MAE 80%'                 : errors_dict             ['80%']['MAE' ] ,
+            'MAE 20%'                 : errors_dict             ['20%']['MAE' ] ,
+            'RMSE 80%'                : errors_dict             ['80%']['RMSE'] ,
+            'RMSE 20%'                : errors_dict             ['20%']['RMSE'] ,
+            'MSE 80%'                 : errors_dict             ['80%']['MSE' ] ,
+            'MSE 20%'                 : errors_dict             ['20%']['MSE' ] ,
+            'R^2 80%'                 : errors_dict             ['80%']['R^2' ] ,
+            'R^2 20%'                 : errors_dict             ['20%']['R^2' ] ,
+            'Desvio Padrão Obs.'      : observed_std_dev                        ,
+            'Desvio Padrão Pred. 80%' : predictions_std_dev     ['80%']         ,
+            'Desvio Padrão Pred. 20%' : predictions_std_dev     ['20%']         ,
+            'Coef. de Correlação 80%' : correlation_coefficient ['80%']         ,
+            'Coef. de Correlação 20%' : correlation_coefficient ['20%']
         }
-
-        self.metrics_df = pd.concat([self.metrics_df, pd.DataFrame([row])], ignore_index=True)
+        
+        if city_for_training == city_for_predicting:
+            self.metrics_central   = pd.concat([self.metrics_central  , pd.DataFrame([row])], ignore_index=True)
+        else:
+            self.metrics_bordering = pd.concat([self.metrics_bordering, pd.DataFrame([row])], ignore_index=True)
 
     def getTaylorMetrics(self, spei_dict, dataTrueValues_dict, predictValues_dict):    
      # Standard Deviation:
