@@ -40,6 +40,8 @@ class Plotter:
         
         # Issue #7: "Taylor Diagrams are an unfinished work"
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
+        
+        # KeyError: '80%' when plotting not-model:
         self.showResidualPlots          (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showR2ScatterPlots         (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)

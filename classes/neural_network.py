@@ -60,8 +60,12 @@ class NeuralNetwork:
         return history
     
     def use_neural_network(self, dataset=None, plotter=None):
-        if dataset == None: dataset = self.dataset
         if plotter == None: plotter = self.plotter
+        if dataset == None:
+              dataset  = self.dataset
+              is_model = True
+        else: is_model = False
+        
         
         (               spei_dict,             months_dict,
            dataForPrediction_dict,     dataTrueValues_dict,
@@ -69,32 +73,44 @@ class NeuralNetwork:
        
         split_position = len(spei_dict['80%'])
         if not self.has_trained:
+            # flags has_trained as True:
             history        = self._train_ml_model(dataForPrediction_dict, dataTrueValues_dict)
             plotter.drawModelLineGraph           (history, self.dataset.city_cluster_name, self.dataset.city_name)
             
         print(f'Started: applying ML model {self.dataset.city_name} to city {dataset.city_name}')
-        predictValues_dict = {
-            '80%' : self.model.predict(dataForPrediction_dict['80%'], verbose = 0),
-            '20%' : self.model.predict(dataForPrediction_dict['20%'], verbose = 0)
-                             }
         
-        metrics_central, metrics_bordering = self.evaluator.evaluate(self.has_trained , spei_dict          ,
+        if is_model:
+            predictValues_dict = {
+                '80%' : self.model.predict(dataForPrediction_dict['80%'], verbose = 0),
+                '20%' : self.model.predict(dataForPrediction_dict['20%'], verbose = 0)
+                                 }
+        else:
+            predictValues_dict = {
+                '20%' : self.model.predict(dataForPrediction_dict['20%'], verbose = 0)
+                                 }
+        
+        
+        metrics_central, metrics_bordering = self.evaluator.evaluate(is_model, spei_dict          ,
                                 dataTrueValues_dict           , predictValues_dict     ,
                                 self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
         
         plotter.plotDatasetPlots   (dataset, spei_dict['20%'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
-        self.plotter.plotModelPlots(spei_dict                     ,
-                                    dataTrueValues_dict           , predictValues_dict    ,
-                                    monthsForPredicted_dict       , self.has_trained      ,
-                                    history if not self.has_trained else None             , metrics_central  ,
-                                    self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
-        self.plotter.plotModelPlots(spei_dict                     ,
-                                    dataTrueValues_dict           , predictValues_dict    ,
-                                    monthsForPredicted_dict       , self.has_trained      ,
-                                    history if not self.has_trained else None             , metrics_bordering,
-                                    self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        # metrics_central:
+        # print(f'Plotting model plots for {dataset.city_name} (is model? {is_model})')
+        # self.plotter.plotModelPlots(spei_dict                     ,
+        #                             dataTrueValues_dict           , predictValues_dict    ,
+        #                             monthsForPredicted_dict       , self.has_trained      ,
+        #                             history if not self.has_trained else None             , metrics_central  ,
+        #                             self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
-        print(f'Ended: applying ML model {self.dataset.city_name} to city {dataset.city_name}')
+        # metrics_bordering:
+        # self.plotter.plotModelPlots(spei_dict                     ,
+        #                             dataTrueValues_dict           , predictValues_dict    ,
+        #                             monthsForPredicted_dict       , self.has_trained      ,
+        #                             history if not self.has_trained else None             , metrics_bordering,
+        #                             self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        
+        print(f'Ended  : applying ML model {self.dataset.city_name} to city {dataset.city_name}')
         
         return metrics_central, metrics_bordering
