@@ -5,10 +5,27 @@ import pandas     as pd
 class PerformanceEvaluator():
     
     def __init__(self):
-        COLUMNS = ['Agrupamento', 'Municipio Treinado', 'Municipio Previsto', 'MAE 80%', 'MAE 20%', 'RMSE 80%', 'RMSE 20%', 'MSE 80%', 'MSE 20%', 'R^2 80%', 'R^2 20%', 'Desvio Padrão Obs.', 'Desvio Padrão Pred. 80%', 'Desvio Padrão Pred. 20%', 'Coef. de Correlação 80%', 'Coef. de Correlação 20%']
+        COLUMNS = {
+            'Agrupamento'             : str,
+            'Municipio Treinado'      : str,
+            'Municipio Previsto'      : str,
+            'MAE 80%'                 : float,
+            'MAE 20%'                 : float,
+            'RMSE 80%'                : float,
+            'RMSE 20%'                : float,
+            'MSE 80%'                 : float,
+            'MSE 20%'                 : float,
+            'R^2 80%'                 : float,
+            'R^2 20%'                 : float,
+            'Desvio Padrão Obs.'      : float,
+            'Desvio Padrão Pred. 80%' : float,
+            'Desvio Padrão Pred. 20%' : float,
+            'Coef. de Correlação 80%' : float,
+            'Coef. de Correlação 20%' : float
+        }
         
-        self.metrics_central   = pd.DataFrame(columns=COLUMNS)
-        self.metrics_bordering = pd.DataFrame(columns=COLUMNS)
+        self.metrics_central   = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLUMNS.items()})
+        self.metrics_bordering = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLUMNS.items()})
         
     def evaluate          (self, has_trained   , spei_dict          ,
                            dataTrueValues_dict , predictValues_dict ,
@@ -84,9 +101,11 @@ class PerformanceEvaluator():
         }
         
         if city_for_training == city_for_predicting:
-            self.metrics_central   = pd.concat([self.metrics_central  , pd.DataFrame([row])], ignore_index=True)
+            df_row = pd.DataFrame([row]).astype(self.metrics_central.dtypes.to_dict())
+            self.metrics_central   = pd.concat([self.metrics_central  , df_row], ignore_index=True)
         else:
-            self.metrics_bordering = pd.concat([self.metrics_bordering, pd.DataFrame([row])], ignore_index=True)
+            df_row = pd.DataFrame([row]).astype(self.metrics_bordering.dtypes.to_dict())
+            self.metrics_bordering = pd.concat([self.metrics_bordering, df_row], ignore_index=True)
 
     def getTaylorMetrics(self, spei_dict, dataTrueValues_dict, predictValues_dict):    
      # Standard Deviation:
