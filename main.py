@@ -50,8 +50,8 @@ _ , sao_francisco_bordering_metrics = sao_francisco_model.use_neural_network (da
 # METRICS RESULTS JOINING:
 metrics_central   = pd.concat([rio_pardo_de_mg_central_metrics  , sao_francisco_central_metrics  ], ignore_index=True)
 metrics_bordering = pd.concat([rio_pardo_de_mg_bordering_metrics, sao_francisco_bordering_metrics], ignore_index=True)
-metrics_total     = pd.concat([metrics_central                  , metrics_bordering              ], ignore_index=True)
 
+# metrics_total     = pd.concat([metrics_central                  , metrics_bordering              ], ignore_index=True)
 # pintopolis_plotter.drawMetricsBoxPlots(metrics_total)
 # pintopolis_plotter.drawMetricsBarPlots(metrics_total)
 ###############################################################################

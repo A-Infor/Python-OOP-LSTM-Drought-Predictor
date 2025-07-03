@@ -5,18 +5,18 @@ import pandas     as pd
 class PerformanceEvaluator():
     
     def __init__(self):
-        COLUMNS = {
-            'Agrupamento'             : str,
-            'Municipio Treinado'      : str,
-            'Municipio Previsto'      : str,
-            'MAE 80%'                 : float,
-            'MAE 20%'                 : float,
-            'RMSE 80%'                : float,
-            'RMSE 20%'                : float,
-            'MSE 80%'                 : float,
-            'MSE 20%'                 : float,
-            'R^2 80%'                 : float,
-            'R^2 20%'                 : float
+        COLS_CENTRAL = {
+            'Agrupamento'               : str,
+            'Municipio Treinado'        : str,
+            'Municipio Previsto'        : str,
+            'MAE 80%'                   : float,
+            'MAE 20%'                   : float,
+            'RMSE 80%'                  : float,
+            'RMSE 20%'                  : float,
+            'MSE 80%'                   : float,
+            'MSE 20%'                   : float,
+            'R^2 80%'                   : float,
+            'R^2 20%'                   : float
             # 'Desvio Padrão Obs.'      : float,
             # 'Desvio Padrão Pred. 80%' : float,
             # 'Desvio Padrão Pred. 20%' : float,
@@ -24,10 +24,29 @@ class PerformanceEvaluator():
             # 'Coef. de Correlação 20%' : float
         }
         
-        self.metrics_central   = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLUMNS.items()})
-        self.metrics_bordering = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLUMNS.items()})
+        COLS_BORDERING = {
+            'Agrupamento'               : str,
+            'Municipio Treinado'        : str,
+            'Municipio Previsto'        : str,
+            'MAE 100%'                  : float,
+            'MAE 20%'                   : float,
+            'RMSE 100%'                 : float,
+            'RMSE 20%'                  : float,
+            'MSE 100%'                  : float,
+            'MSE 20%'                   : float,
+            'R^2 100%'                  : float,
+            'R^2 20%'                   : float
+            # 'Desvio Padrão Obs.'      : float,
+            # 'Desvio Padrão Pred. 100%': float,
+            # 'Desvio Padrão Pred. 20%' : float,
+            # 'Coef. de Correlação 100%': float,
+            # 'Coef. de Correlação 20%' : float
+        }
         
-    def evaluate          (self   , is_model, spei_dict          ,
+        self.metrics_central   = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLS_CENTRAL  .items()})
+        self.metrics_bordering = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLS_BORDERING.items()})
+        
+    def evaluate          (self      , is_model, spei_dict          ,
                            dataTrueValues_dict , predictValues_dict ,
                            city_cluster_name   , city_for_training  , city_for_predicting):
         
@@ -69,17 +88,19 @@ class PerformanceEvaluator():
         if is_model:
             errors_dict = {
                 '80%' : self.getError(dataTrueValues_dict['80%'], predictValues_dict['80%']),
-                '20%' : self.getError(dataTrueValues_dict['20%' ], predictValues_dict['20%' ])
+                '20%' : self.getError(dataTrueValues_dict['20%'], predictValues_dict['20%'])
                           }
             print(f'\t\t--------------Result for model {city_for_training} applied to its own data---------------')
-            print(f"\t\t\tTRAIN (80%): {errors_dict['80%']}")
-            print(f"\t\t\tTEST  (20%): {errors_dict['20%'] }")
+            print(f"\t\t\tTRAIN ( 80%): {errors_dict['80%' ]}")
+            print(f"\t\t\tTEST  ( 20%): {errors_dict['20%' ] }")
         else:
             errors_dict = {
+                '100%': self.getError(dataTrueValues_dict['100%'], predictValues_dict['100%']),
                 '20%' : self.getError(dataTrueValues_dict['20%' ], predictValues_dict['20%' ])
                           }
             print(f'\t\t--------------Result for model {city_for_training} applied to {city_for_predicting} data---------------')
-            print(f"\t\t\tTEST (20%): {errors_dict['20%'] }")
+            print(f"\t\t\tTEST (100%): {errors_dict['20%' ] }")
+            print(f"\t\t\tTEST ( 20%): {errors_dict['100%'] }")
 
         return errors_dict
 
@@ -94,14 +115,14 @@ class PerformanceEvaluator():
                 'Agrupamento'             : city_cluster_name                       ,
                 'Municipio Treinado'      : city_for_training                       ,
                 'Municipio Previsto'      : city_for_predicting                     ,
-                'MAE 80%'                 : errors_dict             ['80%']['MAE' ] ,
-                'MAE 20%'                 : errors_dict             ['20%']['MAE' ] ,
-                'RMSE 80%'                : errors_dict             ['80%']['RMSE'] ,
-                'RMSE 20%'                : errors_dict             ['20%']['RMSE'] ,
-                'MSE 80%'                 : errors_dict             ['80%']['MSE' ] ,
-                'MSE 20%'                 : errors_dict             ['20%']['MSE' ] ,
-                'R^2 80%'                 : errors_dict             ['80%']['R^2' ] ,
-                'R^2 20%'                 : errors_dict             ['20%']['R^2' ]
+                'MAE 80%'                 : errors_dict             [ '80%']['MAE' ] ,
+                'MAE 20%'                 : errors_dict             [ '20%']['MAE' ] ,
+                'RMSE 80%'                : errors_dict             [ '80%']['RMSE'] ,
+                'RMSE 20%'                : errors_dict             [ '20%']['RMSE'] ,
+                'MSE 80%'                 : errors_dict             [ '80%']['MSE' ] ,
+                'MSE 20%'                 : errors_dict             [ '20%']['MSE' ] ,
+                'R^2 80%'                 : errors_dict             [ '80%']['R^2' ] ,
+                'R^2 20%'                 : errors_dict             [ '20%']['R^2' ]
                 # 'Desvio Padrão Obs.'      : observed_std_dev                        ,
                 # 'Desvio Padrão Pred. 80%' : predictions_std_dev     ['80%']         ,
                 # 'Desvio Padrão Pred. 20%' : predictions_std_dev     ['20%']         ,
@@ -113,14 +134,14 @@ class PerformanceEvaluator():
                 'Agrupamento'             : city_cluster_name                       ,
                 'Municipio Treinado'      : city_for_training                       ,
                 'Municipio Previsto'      : city_for_predicting                     ,
-                'MAE 80%'                 : None                                    ,
-                'MAE 20%'                 : errors_dict             ['20%']['MAE' ] ,
-                'RMSE 80%'                : None                                    ,
-                'RMSE 20%'                : errors_dict             ['20%']['RMSE'] ,
-                'MSE 80%'                 : None                                    ,
-                'MSE 20%'                 : errors_dict             ['20%']['MSE' ] ,
-                'R^2 80%'                 : None                                    ,
-                'R^2 20%'                 : errors_dict             ['20%']['R^2' ]
+                'MAE 100%'                : errors_dict             ['100%']['MAE' ] ,
+                'MAE 20%'                 : errors_dict             [ '20%']['MAE' ] ,
+                'RMSE 100%'               : errors_dict             ['100%']['RMSE'] ,
+                'RMSE 20%'                : errors_dict             [ '20%']['RMSE'] ,
+                'MSE 100%'                : errors_dict             ['100%']['MSE' ] ,
+                'MSE 20%'                 : errors_dict             [ '20%']['MSE' ] ,
+                'R^2 100%'                : errors_dict             ['100%']['R^2' ] ,
+                'R^2 20%'                 : errors_dict             [ '20%']['R^2' ]
                 # 'Desvio Padrão Obs.'      : observed_std_dev                        ,
                 # 'Desvio Padrão Pred. 80%' : predictions_std_dev     ['80%']         ,
                 # 'Desvio Padrão Pred. 20%' : predictions_std_dev     ['20%']         ,
@@ -128,7 +149,7 @@ class PerformanceEvaluator():
                 # 'Coef. de Correlação 20%' : correlation_coefficient ['20%']
             }
         
-        if city_for_training == city_for_predicting:
+        if is_model:
             df_row = pd.DataFrame([row]).astype(self.metrics_central.dtypes.to_dict())
             self.metrics_central   = pd.concat([self.metrics_central  , df_row], ignore_index=True)
         else:

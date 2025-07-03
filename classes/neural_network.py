@@ -86,7 +86,8 @@ class NeuralNetwork:
                                  }
         else:
             predictValues_dict = {
-                '20%' : self.model.predict(dataForPrediction_dict['20%'], verbose = 0)
+                '100%': self.model.predict(dataForPrediction_dict['100%'], verbose = 0),
+                '20%' : self.model.predict(dataForPrediction_dict[ '20%'], verbose = 0)
                                  }
         
         
