@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 class Dataset:
     
-    DATA_TYPES_LIST = ['80%', '20%']
+    DATA_TYPES_LIST = ['100%', '80%', '20%']
     
     def __init__(self, city_name, city_cluster_name, root_dir, xlsx):
         self.city_name         = city_name
@@ -27,8 +27,8 @@ class Dataset:
         spei_dict               , months_dict             = self._train_test_split(configs_dict['parcelDataTrain'])
         
         #         IN            ,           OUT           :
-        dataForPrediction_dict  , dataTrueValues_dict     =  self._create_input_output(  spei_dict, configs_dict)
-        monthsForPrediction_dict, monthsForPredicted_dict =  self._create_input_output(months_dict, configs_dict)
+        dataForPrediction_dict  , dataTrueValues_dict     =  self._create_input_output_pairs(  spei_dict, configs_dict)
+        monthsForPrediction_dict, monthsForPredicted_dict =  self._create_input_output_pairs(months_dict, configs_dict)
         
         return (               spei_dict,             months_dict,
                   dataForPrediction_dict,     dataTrueValues_dict,
@@ -50,7 +50,7 @@ class Dataset:
 
         return spei_dict, months_dict
     
-    def _create_input_output(self, data_dict, configs_dict):
+    def _create_input_output_pairs(self, data_dict, configs_dict):
         window_gap  = configs_dict['total_points']
         dense_units = configs_dict['dense_units' ]
         
