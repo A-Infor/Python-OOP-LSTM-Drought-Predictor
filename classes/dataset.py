@@ -39,9 +39,15 @@ class Dataset:
         spei_dict   = dict.fromkeys(Dataset.DATA_TYPES_LIST)
         months_dict = dict.fromkeys(Dataset.DATA_TYPES_LIST)
         
-        (  spei_dict['80%'],   spei_dict['20%'],
-         months_dict['80%'], months_dict['20%']) = train_test_split(self.get_spei_normalized(), self.get_months(), train_size=train_size, shuffle=False)
+        spei_dict  ['100%'] = self.get_spei_normalized()
+        months_dict['100%'] = self.get_months         ()
         
+        (  spei_dict['80%'],   spei_dict['20%'],
+         months_dict['80%'], months_dict['20%']) = train_test_split(spei_dict    ['100%']  ,
+                                                                    months_dict  ['100%']  ,
+                                                                    train_size = train_size,
+                                                                    shuffle    = False     )
+
         return spei_dict, months_dict
     
     def _create_input_output(self, data_dict, configs_dict):

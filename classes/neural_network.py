@@ -49,7 +49,7 @@ class NeuralNetwork:
         return model
     
     def _train_ml_model(self, dataForPrediction_dict, dataTrueValues_dict):
-        print(f'Started: training of ML model {self.dataset.city_name} (may take a while)')
+        print(f'\nStarted: training of ML model {self.dataset.city_name} (may take a while)')
         history = self.model.fit(
             dataForPrediction_dict['80%'],
             dataTrueValues_dict   ['80%'],
