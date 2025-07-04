@@ -91,26 +91,31 @@ class NeuralNetwork:
                                  }
         
         
-        metrics_central, metrics_bordering = self.evaluator.evaluate(is_model, spei_dict          ,
-                                dataTrueValues_dict           , predictValues_dict     ,
-                                self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name )
+        metrics_central, metrics_bordering = self.evaluator.evaluate(is_model, spei_dict,
+            dataTrueValues_dict           , predictValues_dict     ,
+            self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name  )
         
-        plotter.plotDatasetPlots   (dataset, spei_dict['20%'], split_position, self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        plotter.plotDatasetPlots   (dataset, spei_dict['20%']      , split_position   ,
+            self.dataset.city_cluster_name , self.dataset.city_name, dataset.city_name)
         
-        # metrics_central:
-        # print(f'Plotting model plots for {dataset.city_name} (is model? {is_model})')
-        # self.plotter.plotModelPlots(spei_dict                     ,
-        #                             dataTrueValues_dict           , predictValues_dict    ,
-        #                             monthsForPredicted_dict       , self.has_trained      ,
-        #                             history if not self.has_trained else None             , metrics_central  ,
-        #                             self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
-        
-        # metrics_bordering:
-        # self.plotter.plotModelPlots(spei_dict                     ,
-        #                             dataTrueValues_dict           , predictValues_dict    ,
-        #                             monthsForPredicted_dict       , self.has_trained      ,
-        #                             history if not self.has_trained else None             , metrics_bordering,
-        #                             self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        if is_model:
+            # metrics_central:
+            # Works fine:
+            print(f'Plotting model plots for model {dataset.city_name} (is model? {is_model})')
+            self.plotter.plotModelPlots(spei_dict                     , is_model         ,
+                dataTrueValues_dict           , predictValues_dict    ,
+                monthsForPredicted_dict       , self.has_trained      ,
+                history if not self.has_trained else None             , metrics_central  ,
+                self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+            pass
+        else:
+            # metrics_bordering:
+            # KeyError: '80%':
+            self.plotter.plotModelPlots(spei_dict                     , is_model         ,
+                dataTrueValues_dict           , predictValues_dict    ,
+                monthsForPredicted_dict       , self.has_trained      ,
+                history if not self.has_trained else None             , metrics_bordering,
+                self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
         print(f'Ended  : applying ML model {self.dataset.city_name} to city {dataset.city_name}')
         
