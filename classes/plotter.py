@@ -45,10 +45,7 @@ class Plotter:
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        # KeyError: '80%' when plotting non-model:
-        # self.showResidualPlots          (dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
-        
-        # KeyError: '80%' when plotting non-model:
+        self.showResidualPlots          (is_model, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         self.showR2ScatterPlots         (is_model, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
         
         # KeyError: '80%' when plotting non-model:
@@ -111,18 +108,24 @@ class Plotter:
         
         self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
-        
-    def showPredictionResults(self, dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting):
+    
+    def _calculateDenormalizedValues(self, dataTrueValues_dict, predictValues_dict):
         trueValues  = np.append(dataTrueValues_dict['80%'], dataTrueValues_dict['20%'])
         predictions = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
-    
-        reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
-    
+        
         speiMaxValue = np.max(self.speiValues)
         speiMinValue = np.min(self.speiValues)
     
         trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
         predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
+        
+        return trueValues_denormalized, predictions_denormalized
+    
+    def showPredictionResults(self, dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting):
+        
+        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(dataTrueValues_dict, predictValues_dict)
+        
+        reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
     
         plt.figure ()
         plt.plot   (reshapedMonth,  trueValues_denormalized)
@@ -138,14 +141,8 @@ class Plotter:
         plt.close()
     
     def showPredictionsDistribution(self, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting):
-        trueValues  = np.append(dataTrueValues_dict['80%'], dataTrueValues_dict['20%'])
-        predictions = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
-    
-        speiMaxValue = np.max(self.speiValues)
-        speiMinValue = np.min(self.speiValues)
-    
-        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
-        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
+        
+        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(dataTrueValues_dict, predictValues_dict)
     
         plt.figure ()
         plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
@@ -372,11 +369,16 @@ class Plotter:
     #         self._saveFig(plt, 'Histograms.', model_name, model_name)
     #         plt.close()
     
-    def showResidualPlots(self, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):
-        residuals        = {'80%': true_values_dict['80%'] - predicted_values_dict['80%'],
-                            '20%': true_values_dict['20%'] - predicted_values_dict['20%']}
+    def showResidualPlots(self, is_model, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):
         
-        for training_or_testing in ['80%', '20%']:
+        if is_model:
+            residuals        = { '80%': true_values_dict[ '80%'] - predicted_values_dict[ '80%'],
+                                 '20%': true_values_dict[ '20%'] - predicted_values_dict[ '20%']}
+        else:
+            residuals        = {'100%': true_values_dict['100%'] - predicted_values_dict['100%'],
+                                 '20%': true_values_dict[ '20%'] - predicted_values_dict[ '20%']}
+        
+        for training_or_testing in Plotter.METRICS_TYPES_CENTRAL if is_model else Plotter.METRICS_TYPES_BORDERING:
             plt.scatter(predicted_values_dict[training_or_testing], residuals[training_or_testing], alpha=0.5)
             plt.axhline(y=0, color='r', linestyle='--')
             plt.xlabel('Predicted Values')
