@@ -45,14 +45,18 @@ class Plotter:
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        self.showResidualPlots          (is_model, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
-        self.showR2ScatterPlots         (is_model, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showResidualPlots          (is_model         , dataTrueValues_dict, predictValues_dict ,
+                                         city_cluster_name, city_for_training  , city_for_predicting)
+        self.showR2ScatterPlots         (is_model         , dataTrueValues_dict, predictValues_dict ,
+                                         city_cluster_name, city_for_training  , city_for_predicting)
         
         # KeyError: '80%' when plotting non-model:
-        # self.showPredictionsDistribution(dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting)
+        self.showPredictionsDistribution(is_model         , dataTrueValues_dict, predictValues_dict ,
+                                          city_cluster_name, city_for_training  , city_for_predicting)
         
         # KeyError: '80%' when plotting non-model:
-        # self.showPredictionResults      (dataTrueValues_dict, predictValues_dict, monthForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting)
+        # self.showPredictionResults      (is_model         , dataTrueValues_dict, predictValues_dict , monthForPredicted_dict,
+                                         # city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
     # def plotMetricsPlots(self, metrics_df):
@@ -109,9 +113,15 @@ class Plotter:
         self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def _calculateDenormalizedValues(self, dataTrueValues_dict, predictValues_dict):
-        trueValues  = np.append(dataTrueValues_dict['80%'], dataTrueValues_dict['20%'])
-        predictions = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
+    def _calculateDenormalizedValues(self, is_model, dataTrueValues_dict, predictValues_dict):
+        
+        if is_model:
+            predictions = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
+        else:
+            # [348], should be [342]:
+            predictions = predictValues_dict['100%'].flatten()
+            
+        trueValues  = np.append( dataTrueValues_dict['80%'],  dataTrueValues_dict['20%']) # dataTrueValues_dict['100%']
         
         speiMaxValue = np.max(self.speiValues)
         speiMinValue = np.min(self.speiValues)
@@ -121,9 +131,10 @@ class Plotter:
         
         return trueValues_denormalized, predictions_denormalized
     
-    def showPredictionResults(self, dataTrueValues_dict, predictValues_dict, monthsForPredicted_dict, city_cluster_name, city_for_training, city_for_predicting):
+    def showPredictionResults(self, is_model   , dataTrueValues_dict, predictValues_dict , monthsForPredicted_dict,
+                              city_cluster_name, city_for_training  , city_for_predicting                         ):
         
-        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(dataTrueValues_dict, predictValues_dict)
+        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
         
         reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
     
@@ -140,11 +151,13 @@ class Plotter:
         self._saveFig(plt, 'Previsao', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def showPredictionsDistribution(self, dataTrueValues_dict, predictValues_dict, city_cluster_name, city_for_training, city_for_predicting):
+    def showPredictionsDistribution(self, is_model   , dataTrueValues_dict, predictValues_dict ,
+                                    city_cluster_name, city_for_training  , city_for_predicting):
         
-        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(dataTrueValues_dict, predictValues_dict)
+        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
     
         plt.figure ()
+        # "ValueError: x and y must be the same size" :
         plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
         plt.xlabel ('SPEI Verdadeiros')
         plt.ylabel ('SPEI Previstos')

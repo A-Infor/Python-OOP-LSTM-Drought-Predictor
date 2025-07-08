@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 class Dataset:
     
-    DATA_TYPES_LIST = ['100%', '80%', '20%']
+    DATA_TYPES_LIST = ['80%', '20%'] # '100%' is made out of 80% + 20% through 'concatenate'
     
     def __init__(self, city_name, city_cluster_name, root_dir, xlsx):
         self.city_name         = city_name
@@ -30,6 +30,12 @@ class Dataset:
         dataForPrediction_dict  , dataTrueValues_dict     =  self._create_input_output_pairs(  spei_dict, configs_dict)
         monthsForPrediction_dict, monthsForPredicted_dict =  self._create_input_output_pairs(months_dict, configs_dict)
         
+        dataForPrediction_dict   ['100%'] = np.concatenate( (dataForPrediction_dict   ['80%'], dataForPrediction_dict   ['20%']), axis=0)
+        dataTrueValues_dict      ['100%'] = np.concatenate( (dataTrueValues_dict      ['80%'], dataTrueValues_dict      ['20%']), axis=0)
+        
+        monthsForPrediction_dict ['100%'] = np.concatenate( (monthsForPrediction_dict ['80%'], monthsForPrediction_dict ['20%']), axis=0)
+        monthsForPredicted_dict  ['100%'] = np.concatenate( (monthsForPredicted_dict  ['80%'], monthsForPredicted_dict  ['20%']), axis=0)
+        
         return (               spei_dict,             months_dict,
                   dataForPrediction_dict,     dataTrueValues_dict,
                 monthsForPrediction_dict, monthsForPredicted_dict)
@@ -43,11 +49,11 @@ class Dataset:
         months_dict['100%'] = self.get_months         ()
         
         (  spei_dict['80%'],   spei_dict['20%'],
-         months_dict['80%'], months_dict['20%']) = train_test_split(spei_dict    ['100%']  ,
-                                                                    months_dict  ['100%']  ,
-                                                                    train_size = train_size,
-                                                                    shuffle    = False     )
-
+         months_dict['80%'], months_dict['20%']) = train_test_split(spei_dict  ['100%']     ,
+                                                                    months_dict['100%']     ,
+                                                                    train_size = train_size ,
+                                                                    shuffle    = False      )
+                                                                    
         return spei_dict, months_dict
     
     def _create_input_output_pairs(self, data_dict, configs_dict):
