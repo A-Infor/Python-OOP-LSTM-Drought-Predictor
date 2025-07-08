@@ -1,10 +1,10 @@
-import statistics
+# import statistics                      # Unused for now
 import os
 import matplotlib.pyplot   as      plt
 import numpy               as       np
-import skill_metrics       as       sm
-import matplotlib.gridspec as gridspec
-from   scipy.stats         import norm
+# import skill_metrics       as       sm # Unused for now
+# import matplotlib.gridspec as gridspec # Unused for now
+# from   scipy.stats         import norm # Unused for now
 
 class Plotter:
     
@@ -49,14 +49,10 @@ class Plotter:
                                          city_cluster_name, city_for_training  , city_for_predicting)
         self.showR2ScatterPlots         (is_model         , dataTrueValues_dict, predictValues_dict ,
                                          city_cluster_name, city_for_training  , city_for_predicting)
-        
-        # KeyError: '80%' when plotting non-model:
         self.showPredictionsDistribution(is_model         , dataTrueValues_dict, predictValues_dict ,
                                           city_cluster_name, city_for_training  , city_for_predicting)
-        
-        # KeyError: '80%' when plotting non-model:
-        # self.showPredictionResults      (is_model         , dataTrueValues_dict, predictValues_dict , monthForPredicted_dict,
-                                         # city_cluster_name, city_for_training  , city_for_predicting)
+        self.showPredictionResults      (is_model         , dataTrueValues_dict, predictValues_dict , monthForPredicted_dict,
+                                         city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
     # def plotMetricsPlots(self, metrics_df):
