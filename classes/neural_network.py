@@ -100,21 +100,18 @@ class NeuralNetwork:
         
         if is_model:
             # metrics_central:
-            print(f'Plotting model plots for model {dataset.city_name} (is model? {is_model})')
-            print('\tDisabled for now, still debugging.')
-            # self.plotter.plotModelPlots(spei_dict                     , is_model         ,
-            #     dataTrueValues_dict           , predictValues_dict    ,
-            #     monthsForPredicted_dict       , self.has_trained      ,
-            #     history if not self.has_trained else None             , metrics_central  ,
-            #     self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+            self.plotter.plotModelPlots(spei_dict                     , is_model         ,
+                dataTrueValues_dict           , predictValues_dict    ,
+                monthsForPredicted_dict       , self.has_trained      ,
+                history if not self.has_trained else None             , metrics_central  ,
+                self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         else:
             # metrics_bordering:
-            print('\tDisabled for now, still debugging.')
-            # self.plotter.plotModelPlots(spei_dict                     , is_model         ,
-            #     dataTrueValues_dict           , predictValues_dict    ,
-            #     monthsForPredicted_dict       , self.has_trained      ,
-            #     history if not self.has_trained else None             , metrics_bordering,
-            #     self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+            self.plotter.plotModelPlots(spei_dict                     , is_model         ,
+                dataTrueValues_dict           , predictValues_dict    ,
+                monthsForPredicted_dict       , self.has_trained      ,
+                history if not self.has_trained else None             , metrics_bordering,
+                self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
         
         print(f'Ended  : applying ML model {self.dataset.city_name} to city {dataset.city_name}')
         
