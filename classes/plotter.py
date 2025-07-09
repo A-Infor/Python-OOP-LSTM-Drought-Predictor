@@ -111,26 +111,42 @@ class Plotter:
     
     def _calculateDenormalizedValues(self, is_model, dataTrueValues_dict, predictValues_dict):
         
+        RELEVANT_PORTIONS             = ['100%', '20%']
+        
+        predictions_dict              = dict.fromkeys(RELEVANT_PORTIONS)
+        trueValues_dict               = dict.fromkeys(RELEVANT_PORTIONS)
+        trueValues_denormalized_dict  = dict.fromkeys(RELEVANT_PORTIONS)
+        predictions_denormalized_dict = dict.fromkeys(RELEVANT_PORTIONS)
+        
+        predictions_dict['20%'] = predictValues_dict['20%']
         if is_model:
-            predictions = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
+            # No prediction is ever made for '100%' data when is_model=True :
+            predictions_dict['100%'] = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
         else:
-            # [348], should be [342]:
-            predictions = predictValues_dict['100%'].flatten()
-            
-        trueValues  = np.append( dataTrueValues_dict['80%'],  dataTrueValues_dict['20%']) # dataTrueValues_dict['100%']
+            # No prediction is ever made for  '80%' data when is_model=False:
+            predictions_dict['100%'] = predictValues_dict['100%'].flatten()
+        
+        # There are always true values for 100%, 80%, and 20%.
+        # Appending 80%+20% gives the same numbers as taking 100% directly and flattening it.
+        trueValues_dict['100%']  = dataTrueValues_dict['100%'].flatten()
+        trueValues_dict[ '20%']  = dataTrueValues_dict[ '20%']
         
         speiMaxValue = np.max(self.speiValues)
         speiMinValue = np.min(self.speiValues)
-    
-        trueValues_denormalized  = (trueValues  * (speiMaxValue - speiMinValue) + speiMinValue)
-        predictions_denormalized = (predictions * (speiMaxValue - speiMinValue) + speiMinValue)
+        speiDelta    = speiMaxValue - speiMinValue
         
-        return trueValues_denormalized, predictions_denormalized
+        # BOTH 100% AND 20% NEEDS TO BE CALCULATED!
+        trueValues_denormalized_dict ['100%'] = (trueValues_dict ['100%'] * speiDelta + speiMinValue)
+        predictions_denormalized_dict['100%'] = (predictions_dict['100%'] * speiDelta + speiMinValue)
+        
+        # BOTH 100% AND 20% NEEDS TO BE RETURNED!
+        return trueValues_denormalized_dict['100%'], predictions_denormalized_dict['100%']
     
     def showPredictionResults(self, is_model   , dataTrueValues_dict, predictValues_dict , monthsForPredicted_dict,
                               city_cluster_name, city_for_training  , city_for_predicting                         ):
         
-        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
+        (trueValues_denormalized ,
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
         
         reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
     
@@ -150,10 +166,10 @@ class Plotter:
     def showPredictionsDistribution(self, is_model   , dataTrueValues_dict, predictValues_dict ,
                                     city_cluster_name, city_for_training  , city_for_predicting):
         
-        trueValues_denormalized, predictions_denormalized = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
+        (trueValues_denormalized ,
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
     
         plt.figure ()
-        # "ValueError: x and y must be the same size" :
         plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
         plt.xlabel ('SPEI Verdadeiros')
         plt.ylabel ('SPEI Previstos')
