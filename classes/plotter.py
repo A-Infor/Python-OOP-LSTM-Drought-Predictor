@@ -13,9 +13,9 @@ class Plotter:
     
     def __init__(self, dataset):
         self.dataset              = dataset
-        self.monthValues          = self.dataset.get_months()
-        self.speiValues           = self.dataset.get_spei()
-        self.speiNormalizedValues = self.dataset.get_spei_normalized()
+        self.monthValues          = self.dataset.get_months          ()
+        self.speiValues           = self.dataset.get_spei            ()
+        self.speiNormalizedValues = self.dataset.get_spei_normalized ()
 
     def _saveFig(self, plot, filename, city_cluster_name=None, city_for_training=None, city_for_predicting=None):
         if city_for_predicting:
@@ -36,7 +36,7 @@ class Plotter:
         self.showSpeiTest(dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
 
     def plotModelPlots(self                  , spei_dict         , is_model        ,
-                       dataTrueValues_dict   , predictValues_dict,
+                       true_values_normalized_dict   , predict_values_normalized_dict,
                        monthForPredicted_dict, has_trained       ,
                        history                                   , metrics_df         ,
                        city_cluster_name     , city_for_training , city_for_predicting):
@@ -45,13 +45,13 @@ class Plotter:
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        self.showResidualPlots          (is_model         , dataTrueValues_dict, predictValues_dict ,
+        self.showResidualPlots          (is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
                                          city_cluster_name, city_for_training  , city_for_predicting)
-        self.showR2ScatterPlots         (is_model         , dataTrueValues_dict, predictValues_dict ,
+        self.showR2ScatterPlots         (is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
                                          city_cluster_name, city_for_training  , city_for_predicting)
-        self.showPredictionsDistribution(is_model         , dataTrueValues_dict, predictValues_dict ,
+        self.showPredictionsDistribution(is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
                                           city_cluster_name, city_for_training  , city_for_predicting)
-        self.showPredictionResults      (is_model         , dataTrueValues_dict, predictValues_dict , monthForPredicted_dict,
+        self.showPredictionResults      (is_model         , true_values_normalized_dict, predict_values_normalized_dict , monthForPredicted_dict,
                                          city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
@@ -109,44 +109,40 @@ class Plotter:
         self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def _calculateDenormalizedValues(self, is_model, dataTrueValues_dict, predictValues_dict):
+    def _calculateDenormalizedValues(self, is_model, true_values_normalized_dict, predict_values_normalized_dict):
         
+        ###ADJUSTMENTS OF INPUTS###############################################
+        true_values_normalized_dict['100%']  = true_values_normalized_dict['100%'].flatten()
+        
+        if is_model: predict_values_normalized_dict['100%'] = np.append(predict_values_normalized_dict['80%'],
+                                                                        predict_values_normalized_dict['20%'])
+        else       : predict_values_normalized_dict['100%'] = predict_values_normalized_dict['100%'].flatten()
+        
+        ###PREPARATIVES FOR OUTPUT#############################################
         RELEVANT_PORTIONS             = ['100%', '20%']
         
-        predictions_dict              = dict.fromkeys(RELEVANT_PORTIONS)
-        trueValues_dict               = dict.fromkeys(RELEVANT_PORTIONS)
-        trueValues_denormalized_dict  = dict.fromkeys(RELEVANT_PORTIONS)
+        true_values_denormalized_dict = dict.fromkeys(RELEVANT_PORTIONS)
         predictions_denormalized_dict = dict.fromkeys(RELEVANT_PORTIONS)
         
-        predictions_dict['20%'] = predictValues_dict['20%']
-        if is_model:
-            # No prediction is ever made for '100%' data when is_model=True :
-            predictions_dict['100%'] = np.append( predictValues_dict['80%'],  predictValues_dict['20%'])
-        else:
-            # No prediction is ever made for  '80%' data when is_model=False:
-            predictions_dict['100%'] = predictValues_dict['100%'].flatten()
+        ###MIN & MAX FOR CALCULATION###########################################
+        spei_max_value = np.max(self.speiValues)
+        spei_min_value = np.min(self.speiValues)
         
-        # There are always true values for 100%, 80%, and 20%.
-        # Appending 80%+20% gives the same numbers as taking 100% directly and flattening it.
-        trueValues_dict['100%']  = dataTrueValues_dict['100%'].flatten()
-        trueValues_dict[ '20%']  = dataTrueValues_dict[ '20%']
-        
-        speiMaxValue = np.max(self.speiValues)
-        speiMinValue = np.min(self.speiValues)
-        speiDelta    = speiMaxValue - speiMinValue
+        spei_delta     = spei_max_value - spei_min_value
+        #######################################################################
         
         # BOTH 100% AND 20% NEEDS TO BE CALCULATED!
-        trueValues_denormalized_dict ['100%'] = (trueValues_dict ['100%'] * speiDelta + speiMinValue)
-        predictions_denormalized_dict['100%'] = (predictions_dict['100%'] * speiDelta + speiMinValue)
+        true_values_denormalized_dict['100%'] = (true_values_normalized_dict   ['100%'] * spei_delta + spei_min_value)
+        predictions_denormalized_dict['100%'] = (predict_values_normalized_dict['100%'] * spei_delta + spei_min_value)
         
         # BOTH 100% AND 20% NEEDS TO BE RETURNED!
-        return trueValues_denormalized_dict['100%'], predictions_denormalized_dict['100%']
+        return true_values_denormalized_dict['100%'], predictions_denormalized_dict['100%']
     
-    def showPredictionResults(self, is_model   , dataTrueValues_dict, predictValues_dict , monthsForPredicted_dict,
-                              city_cluster_name, city_for_training  , city_for_predicting                         ):
+    def showPredictionResults(self      , is_model   , true_values_normalized_dict, predict_values_normalized_dict ,
+                              monthsForPredicted_dict, city_cluster_name          , city_for_training              , city_for_predicting):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, true_values_normalized_dict, predict_values_normalized_dict)
         
         reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
     
@@ -163,14 +159,16 @@ class Plotter:
         self._saveFig(plt, 'Previsao', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def showPredictionsDistribution(self, is_model   , dataTrueValues_dict, predictValues_dict ,
-                                    city_cluster_name, city_for_training  , city_for_predicting):
+    def showPredictionsDistribution(self, is_model   , true_values_normalized_dict, predict_values_normalized_dict ,
+                                    city_cluster_name, city_for_training          , city_for_predicting            ):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, dataTrueValues_dict, predictValues_dict)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, true_values_normalized_dict, predict_values_normalized_dict)
     
         plt.figure ()
-        plt.scatter(x=trueValues_denormalized, y=predictions_denormalized, color=['white'], marker='^', edgecolors='black')
+        plt.scatter(x = trueValues_denormalized ,
+                    y = predictions_denormalized,
+                    color=['white'],  marker='^', edgecolors='black')
         plt.xlabel ('SPEI Verdadeiros')
         plt.ylabel ('SPEI Previstos')
         plt.axline ((0, 0), slope=1)
