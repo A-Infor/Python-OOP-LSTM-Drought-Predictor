@@ -11,16 +11,19 @@ class Dataset:
         self.city_cluster_name = city_cluster_name
         self.df                = pd.read_excel(root_dir + xlsx, index_col=0)
         self.df.rename(columns = {'Series 1': 'SPEI Real'}, inplace=True)
+        self.months            = self.df.index.to_numpy()
+        self.spei              = self.df['SPEI Real'].to_numpy()
+        self.spei_normalized   = ( (self.spei       - self.spei.min()) /
+                                   (self.spei.max() - self.spei.min()) )
 
     def get_months(self):
-        return self.df.index.to_numpy()
+        return self.months
     
     def get_spei(self):
-        return self.df['SPEI Real'].to_numpy()
+        return self.spei
     
     def get_spei_normalized(self):
-        spei = self.get_spei()
-        return ( (spei - spei.min()) / (spei.max() - spei.min()) )
+        return self.spei_normalized
     
     def format_data_for_model(self, configs_dict):
         #(SPEI/months)_dict.keys() = ['80%', '20%']
