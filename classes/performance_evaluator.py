@@ -46,13 +46,13 @@ class PerformanceEvaluator():
         self.metrics_central   = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLS_CENTRAL  .items()})
         self.metrics_bordering = pd.DataFrame({col: pd.Series(dtype=typ) for col, typ in COLS_BORDERING.items()})
         
-    def evaluate          (self      , is_model, spei_dict          ,
-                           dataTrueValues_dict , predictValues_dict ,
-                           city_cluster_name   , city_for_training  , city_for_predicting):
+    def evaluate          (self      , is_model, spei_dict            ,
+                           spei_provided_inputs, spei_predicted_values,
+                           city_cluster_name   , city_for_training    , city_for_predicting):
         
-        errors_dict = self._print_errors(dataTrueValues_dict, predictValues_dict  ,
-                                         city_for_training  , city_for_predicting , is_model)
-        self.writeErrors(errors_dict      , spei_dict        , is_model, dataTrueValues_dict, predictValues_dict,
+        errors_dict = self._print_errors(spei_provided_inputs, spei_predicted_values         ,
+                                         city_for_training   , city_for_predicting           , is_model)
+        self.writeErrors(errors_dict      , spei_dict        , is_model, spei_provided_inputs, spei_predicted_values,
                          city_cluster_name, city_for_training, city_for_predicting)
         
         return self.metrics_central, self.metrics_bordering
@@ -73,30 +73,21 @@ class PerformanceEvaluator():
         
         return metrics_values
 
-    def _print_errors(self, dataTrueValues_dict, predictValues_dict, city_for_training, city_for_predicting, is_model):
-    
-        # match has_trained:
-        #     case False:
-        #         print(f'\t\t--------------Result for {city_for_training} (training)---------------')
-        #     case True :
-        #         print(f'\t\t--------------Result for {city_for_training} applied to {city_for_predicting}---------------')
-        #     case _    :
-        #         print('Error in method _print_errors of class PerformanceEvaluator: the has_trained state cannot be recognized.')
-        #         return False
+    def _print_errors(self, spei_provided_inputs, spei_predicted_values, city_for_training, city_for_predicting, is_model):
     
         # RMSE, MSE, MAE, R²:
         if is_model:
             errors_dict = {
-                '80%' : self.getError(dataTrueValues_dict['80%'], predictValues_dict['80%']),
-                '20%' : self.getError(dataTrueValues_dict['20%'], predictValues_dict['20%'])
+                '80%' : self.getError(spei_provided_inputs['80%'], spei_predicted_values['80%']),
+                '20%' : self.getError(spei_provided_inputs['20%'], spei_predicted_values['20%'])
                           }
             print(f'\t\t--------------Result for model {city_for_training} applied to its own data---------------')
             print(f"\t\t\tTRAIN ( 80%): {errors_dict['80%' ]}")
             print(f"\t\t\tTEST  ( 20%): {errors_dict['20%' ] }")
         else:
             errors_dict = {
-                '100%': self.getError(dataTrueValues_dict['100%'], predictValues_dict['100%']),
-                '20%' : self.getError(dataTrueValues_dict['20%' ], predictValues_dict['20%' ])
+                '100%': self.getError(spei_provided_inputs['100%'], spei_predicted_values['100%']),
+                '20%' : self.getError(spei_provided_inputs['20%' ], spei_predicted_values['20%' ])
                           }
             print(f'\t\t--------------Result for model {city_for_training} applied to {city_for_predicting} data---------------')
             print(f"\t\t\tTEST (100%): {errors_dict['20%' ] }")
@@ -104,11 +95,11 @@ class PerformanceEvaluator():
 
         return errors_dict
 
-    def writeErrors(self, errors_dict  , spei_dict          , is_model,
-                    dataTrueValues_dict, predictValues_dict ,
-                    city_cluster_name  , city_for_training  , city_for_predicting):
+    def writeErrors(self, errors_dict   , spei_dict            , is_model,
+                    spei_provided_inputs, spei_predicted_values,
+                    city_cluster_name   , city_for_training    , city_for_predicting):
         
-        # observed_std_dev, predictions_std_dev, correlation_coefficient = self.getTaylorMetrics(spei_dict, dataTrueValues_dict, predictValues_dict, is_model)
+        # observed_std_dev, predictions_std_dev, correlation_coefficient = self.getTaylorMetrics(spei_dict, spei_provided_inputs, spei_predicted_values, is_model)
         
         if is_model:
             row = {
@@ -156,11 +147,11 @@ class PerformanceEvaluator():
             df_row = pd.DataFrame([row]).astype(self.metrics_bordering.dtypes.to_dict())
             self.metrics_bordering = pd.concat([self.metrics_bordering, df_row], ignore_index=True)
 
-    # def getTaylorMetrics(self, spei_dict, dataTrueValues_dict, predictValues_dict, is_model):    
+    # def getTaylorMetrics(self, spei_dict, spei_provided_inputs, spei_predicted_values, is_model):    
     #  # Standard Deviation:
     #  if is_model:
-    #      predictions_std_dev       = {'80%' : np.std(predictValues_dict['80%']),
-    #                                   '20%' : np.std(predictValues_dict['20%'])}
+    #      predictions_std_dev       = {'80%' : np.std(spei_predicted_values['80%']),
+    #                                   '20%' : np.std(spei_predicted_values['20%'])}
      
     #      combined_data             = np.concatenate([spei_dict['80%'], spei_dict['20%']])
     #      observed_std_dev          = np.std(combined_data)
@@ -169,8 +160,8 @@ class PerformanceEvaluator():
     #      print(f"\t\t\tTEST  (20%): STD Dev {predictions_std_dev['20%']}")
      
     #      # Correlation Coefficient:
-    #      correlation_coefficient  = {'80%' : np.corrcoef(predictValues_dict['80%'], dataTrueValues_dict['80%'])[0, 1],
-    #                                  '20%' : np.corrcoef(predictValues_dict['20%'], dataTrueValues_dict['20%'])[0, 1]}
+    #      correlation_coefficient  = {'80%' : np.corrcoef(spei_predicted_values['80%'], spei_provided_inputs['80%'])[0, 1],
+    #                                  '20%' : np.corrcoef(spei_predicted_values['20%'], spei_provided_inputs['20%'])[0, 1]}
      
     #      print(f"\t\t\tTRAIN (80%): correlation {correlation_coefficient['80%']}")
     #      print(f"\t\t\tTEST  (20%): correlation {correlation_coefficient['20%']}")

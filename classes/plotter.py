@@ -32,8 +32,8 @@ class Plotter:
             plt.savefig(FILEPATH + filename, bbox_inches="tight")
 
     def plotDatasetPlots(self, dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting):
-        self.showSpeiData(dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
-        self.showSpeiTest(dataset, spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
+        self.showSpeiData(dataset     , spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
+        self.showSpeiTest(dataset     , spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
 
     def plotModelPlots(self                  , spei_dict         , is_model        ,
                        true_values_normalized_dict   , predict_values_normalized_dict,
@@ -51,8 +51,8 @@ class Plotter:
                                          city_cluster_name, city_for_training  , city_for_predicting)
         self.showPredictionsDistribution(is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
                                           city_cluster_name, city_for_training  , city_for_predicting)
-        self.showPredictionResults      (is_model         , true_values_normalized_dict, predict_values_normalized_dict , monthForPredicted_dict,
-                                         city_cluster_name, city_for_training  , city_for_predicting)
+        # self.showPredictionResults      (is_model         , true_values_normalized_dict, predict_values_normalized_dict , monthForPredicted_dict,
+        #                                  city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
     # def plotMetricsPlots(self, metrics_df):
@@ -139,17 +139,17 @@ class Plotter:
         return true_values_denormalized_dict['100%'], predictions_denormalized_dict['100%']
     
     def showPredictionResults(self      , is_model   , true_values_normalized_dict, predict_values_normalized_dict ,
-                              monthsForPredicted_dict, city_cluster_name          , city_for_training              , city_for_predicting):
+                              months_for_provided_inputs, city_cluster_name          , city_for_training              , city_for_predicting):
         
         (trueValues_denormalized ,
          predictions_denormalized) = self._calculateDenormalizedValues(is_model, true_values_normalized_dict, predict_values_normalized_dict)
         
-        reshapedMonth = np.append(monthsForPredicted_dict['80%'], monthsForPredicted_dict['20%'])
+        reshapedMonth = np.append(months_for_provided_inputs['80%'], months_for_provided_inputs['20%'])
     
         plt.figure ()
         plt.plot   (reshapedMonth,  trueValues_denormalized)
         plt.plot   (reshapedMonth, predictions_denormalized)
-        plt.axvline(monthsForPredicted_dict['80%'][-1][-1], color='r')
+        plt.axvline(months_for_provided_inputs['80%'][-1][-1], color='r')
         plt.legend (['Verdadeiros', 'Previstos'])
         plt.xlabel ('Data')
         plt.ylabel ('SPEI')

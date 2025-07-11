@@ -30,18 +30,23 @@ class Dataset:
         spei_dict               , months_dict             = self._train_test_split(configs_dict['parcelDataTrain'])
         
         #         IN            ,           OUT           :
-        dataForPrediction_dict  , dataTrueValues_dict     =  self._create_input_output_pairs(  spei_dict, configs_dict)
-        monthsForPrediction_dict, monthsForPredicted_dict =  self._create_input_output_pairs(months_dict, configs_dict)
+        spei_expected_outputs  , spei_provided_inputs     =  self._create_input_output_pairs(  spei_dict, configs_dict)
+        months_for_expected_outputs, months_for_provided_inputs =  self._create_input_output_pairs(months_dict, configs_dict)
         
-        dataForPrediction_dict   ['100%'] = np.concatenate( (dataForPrediction_dict   ['80%'], dataForPrediction_dict   ['20%']), axis=0)
-        dataTrueValues_dict      ['100%'] = np.concatenate( (dataTrueValues_dict      ['80%'], dataTrueValues_dict      ['20%']), axis=0)
+        ###100% DATA PORTIONS##################################################
+        spei_expected_outputs   ['100%'] = np.concatenate( (spei_expected_outputs   ['80%'] ,
+                                                             spei_expected_outputs   ['20%']), axis=0)
+        spei_provided_inputs      ['100%'] = np.concatenate( (spei_provided_inputs      ['80%'] ,
+                                                             spei_provided_inputs      ['20%']), axis=0)
         
-        monthsForPrediction_dict ['100%'] = np.concatenate( (monthsForPrediction_dict ['80%'], monthsForPrediction_dict ['20%']), axis=0)
-        monthsForPredicted_dict  ['100%'] = np.concatenate( (monthsForPredicted_dict  ['80%'], monthsForPredicted_dict  ['20%']), axis=0)
-        
+        months_for_expected_outputs ['100%'] = np.concatenate( (months_for_expected_outputs ['80%'] ,
+                                                             months_for_expected_outputs ['20%']), axis=0)
+        months_for_provided_inputs  ['100%'] = np.concatenate( (months_for_provided_inputs  ['80%'] ,
+                                                             months_for_provided_inputs  ['20%']), axis=0)
+        #######################################################################
         return (               spei_dict,             months_dict,
-                  dataForPrediction_dict,     dataTrueValues_dict,
-                monthsForPrediction_dict, monthsForPredicted_dict)
+                  spei_expected_outputs,     spei_provided_inputs,
+                months_for_expected_outputs, months_for_provided_inputs)
     
     def _train_test_split(self, train_size):
         
