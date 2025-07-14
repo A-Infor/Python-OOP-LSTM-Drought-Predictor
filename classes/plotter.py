@@ -36,7 +36,7 @@ class Plotter:
         self.showSpeiTest(dataset     , spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
 
     def plotModelPlots(self                  , spei_dict            , is_model           ,
-                       spei_provided_inputs  , spei_predicted_values,
+                       spei_expected_outputs , spei_predicted_values,
                        monthForPredicted_dict, has_trained          ,
                        history               , metrics_df           ,
                        city_cluster_name     , city_for_training    , city_for_predicting):
@@ -45,13 +45,14 @@ class Plotter:
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        self.showResidualPlots          (is_model         , spei_provided_inputs, spei_predicted_values,
+        # ValueError: operands could not be broadcast together with shapes (46,6,1) (46,6):
+        self.showResidualPlots          (is_model         , spei_expected_outputs, spei_predicted_values,
                                          city_cluster_name, city_for_training   , city_for_predicting  )
-        self.showR2ScatterPlots         (is_model         , spei_provided_inputs, spei_predicted_values,
-                                         city_cluster_name, city_for_training   , city_for_predicting  )
-        self.showPredictionsDistribution(is_model         , spei_provided_inputs, spei_predicted_values,
-                                         city_cluster_name, city_for_training   , city_for_predicting  )
-        # self.showPredictionResults      (is_model         , spei_provided_inputs, spei_predicted_values , monthForPredicted_dict,
+        # self.showR2ScatterPlots         (is_model         , spei_expected_outputs, spei_predicted_values,
+        #                                  city_cluster_name, city_for_training   , city_for_predicting  )
+        # self.showPredictionsDistribution(is_model         , spei_expected_outputs, spei_predicted_values,
+        #                                  city_cluster_name, city_for_training   , city_for_predicting  )
+        # self.showPredictionResults      (is_model         , spei_expected_outputs, spei_predicted_values , monthForPredicted_dict,
         #                                  city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
@@ -214,7 +215,8 @@ class Plotter:
         	plt.plot([], c=color_code, label=label)
         	plt.legend()
     
-    def showResidualPlots(self, is_model, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):
+    def showResidualPlots(self  ,  is_model, true_values_dict , predicted_values_dict,
+                          city_cluster_name, city_for_training, city_for_predicting  ):
         
         if is_model:
             residuals        = { '80%': true_values_dict[ '80%'] - predicted_values_dict[ '80%'],

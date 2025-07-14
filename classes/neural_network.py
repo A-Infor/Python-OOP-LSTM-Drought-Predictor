@@ -98,7 +98,7 @@ class NeuralNetwork:
             self.dataset.city_cluster_name , self.dataset.city_name, dataset.city_name)
         
         self.plotter.plotModelPlots(spei_dict, is_model             ,
-            spei_provided_inputs             , spei_predicted_values,
+            spei_expected_outputs            , spei_predicted_values,
             months_for_provided_inputs       , self.has_trained     ,
             history if not self.has_trained else None               ,
             metrics_central if is_model     else metrics_bordering  ,
