@@ -83,26 +83,26 @@ class NeuralNetwork:
             spei_predicted_values = {
                 '80%' : self.model.predict(spei_expected_outputs['80%'], verbose = 0),
                 '20%' : self.model.predict(spei_expected_outputs['20%'], verbose = 0)
-                                 }
+                                    }
         else:
             spei_predicted_values = {
                 '100%': self.model.predict(spei_expected_outputs['100%'], verbose = 0),
                 '20%' : self.model.predict(spei_expected_outputs[ '20%'], verbose = 0)
-                                 }
+                                    }
         
         metrics_central, metrics_bordering = self.evaluator.evaluate(is_model, spei_dict,
-            spei_provided_inputs           , spei_predicted_values     ,
+            spei_provided_inputs          , spei_predicted_values  ,
             self.dataset.city_cluster_name, self.dataset.city_name , dataset.city_name  )
         
         plotter.plotDatasetPlots   (dataset, spei_dict['20%']      , split_position   ,
             self.dataset.city_cluster_name , self.dataset.city_name, dataset.city_name)
         
-        self.plotter.plotModelPlots(spei_dict                     , is_model         ,
-            spei_provided_inputs           , spei_predicted_values    ,
-            months_for_provided_inputs       , self.has_trained      ,
-            history if not self.has_trained else None             ,
-            metrics_central if is_model     else metrics_bordering,
-            self.dataset.city_cluster_name, self.dataset.city_name, dataset.city_name)
+        self.plotter.plotModelPlots(spei_dict, is_model             ,
+            spei_provided_inputs             , spei_predicted_values,
+            months_for_provided_inputs       , self.has_trained     ,
+            history if not self.has_trained else None               ,
+            metrics_central if is_model     else metrics_bordering  ,
+            self.dataset.city_cluster_name, self.dataset.city_name  , dataset.city_name)
         
         print(f'Ended  : applying ML model {self.dataset.city_name} to city {dataset.city_name}')
         

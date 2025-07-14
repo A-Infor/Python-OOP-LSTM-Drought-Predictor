@@ -35,23 +35,23 @@ class Plotter:
         self.showSpeiData(dataset     , spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
         self.showSpeiTest(dataset     , spei_test, split, city_cluster_name, city_for_training, city_for_predicting)
 
-    def plotModelPlots(self                  , spei_dict         , is_model        ,
-                       true_values_normalized_dict   , predict_values_normalized_dict,
-                       monthForPredicted_dict, has_trained       ,
-                       history                                   , metrics_df         ,
-                       city_cluster_name     , city_for_training , city_for_predicting):
+    def plotModelPlots(self                  , spei_dict            , is_model           ,
+                       spei_provided_inputs  , spei_predicted_values,
+                       monthForPredicted_dict, has_trained          ,
+                       history               , metrics_df           ,
+                       city_cluster_name     , city_for_training    , city_for_predicting):
         
         # Issue #7: "Taylor Diagrams are an unfinished work":
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        self.showResidualPlots          (is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
-                                         city_cluster_name, city_for_training  , city_for_predicting)
-        self.showR2ScatterPlots         (is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
-                                         city_cluster_name, city_for_training  , city_for_predicting)
-        self.showPredictionsDistribution(is_model         , true_values_normalized_dict, predict_values_normalized_dict ,
-                                          city_cluster_name, city_for_training  , city_for_predicting)
-        # self.showPredictionResults      (is_model         , true_values_normalized_dict, predict_values_normalized_dict , monthForPredicted_dict,
+        self.showResidualPlots          (is_model         , spei_provided_inputs, spei_predicted_values,
+                                         city_cluster_name, city_for_training   , city_for_predicting  )
+        self.showR2ScatterPlots         (is_model         , spei_provided_inputs, spei_predicted_values,
+                                         city_cluster_name, city_for_training   , city_for_predicting  )
+        self.showPredictionsDistribution(is_model         , spei_provided_inputs, spei_predicted_values,
+                                         city_cluster_name, city_for_training   , city_for_predicting  )
+        # self.showPredictionResults      (is_model         , spei_provided_inputs, spei_predicted_values , monthForPredicted_dict,
         #                                  city_cluster_name, city_for_training  , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
@@ -109,14 +109,14 @@ class Plotter:
         self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def _calculateDenormalizedValues(self, is_model, true_values_normalized_dict, predict_values_normalized_dict):
+    def _calculateDenormalizedValues(self, is_model, spei_provided_inputs, spei_predicted_values):
         
         ###ADJUSTMENTS OF INPUTS###############################################
-        true_values_normalized_dict['100%']  = true_values_normalized_dict['100%'].flatten()
+        spei_provided_inputs['100%']  = spei_provided_inputs['100%'].flatten()
         
-        if is_model: predict_values_normalized_dict['100%'] = np.append(predict_values_normalized_dict['80%'],
-                                                                        predict_values_normalized_dict['20%'])
-        else       : predict_values_normalized_dict['100%'] = predict_values_normalized_dict['100%'].flatten()
+        if is_model: spei_predicted_values['100%'] = np.append(spei_predicted_values['80%'],
+                                                                        spei_predicted_values['20%'])
+        else       : spei_predicted_values['100%'] = spei_predicted_values['100%'].flatten()
         
         ###PREPARATIVES FOR OUTPUT#############################################
         RELEVANT_PORTIONS             = ['100%', '20%']
@@ -132,17 +132,17 @@ class Plotter:
         #######################################################################
         
         # BOTH 100% AND 20% NEEDS TO BE CALCULATED!
-        true_values_denormalized_dict['100%'] = (true_values_normalized_dict   ['100%'] * spei_delta + spei_min_value)
-        predictions_denormalized_dict['100%'] = (predict_values_normalized_dict['100%'] * spei_delta + spei_min_value)
+        true_values_denormalized_dict['100%'] = (spei_provided_inputs ['100%'] * spei_delta + spei_min_value)
+        predictions_denormalized_dict['100%'] = (spei_predicted_values['100%'] * spei_delta + spei_min_value)
         
         # BOTH 100% AND 20% NEEDS TO BE RETURNED!
         return true_values_denormalized_dict['100%'], predictions_denormalized_dict['100%']
     
-    def showPredictionResults(self      , is_model   , true_values_normalized_dict, predict_values_normalized_dict ,
-                              months_for_provided_inputs, city_cluster_name          , city_for_training              , city_for_predicting):
+    def showPredictionResults(self      ,    is_model   , spei_provided_inputs, spei_predicted_values,
+                              months_for_provided_inputs, city_cluster_name   , city_for_training    , city_for_predicting):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, true_values_normalized_dict, predict_values_normalized_dict)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
         
         reshapedMonth = np.append(months_for_provided_inputs['80%'], months_for_provided_inputs['20%'])
     
@@ -159,11 +159,11 @@ class Plotter:
         self._saveFig(plt, 'Previsao', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def showPredictionsDistribution(self, is_model   , true_values_normalized_dict, predict_values_normalized_dict ,
-                                    city_cluster_name, city_for_training          , city_for_predicting            ):
+    def showPredictionsDistribution(self, is_model   , spei_provided_inputs, spei_predicted_values,
+                                    city_cluster_name, city_for_training   , city_for_predicting  ):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, true_values_normalized_dict, predict_values_normalized_dict)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
     
         plt.figure ()
         plt.scatter(x = trueValues_denormalized ,

@@ -27,25 +27,25 @@ class Dataset:
     
     def format_data_for_model(self, configs_dict):
         #(SPEI/months)_dict.keys() = ['80%', '20%']
-        spei_dict               , months_dict             = self._train_test_split(configs_dict['parcelDataTrain'])
+        spei_dict                  , months_dict                = self._train_test_split(configs_dict['parcelDataTrain'])
         
-        #         IN            ,           OUT           :
-        spei_expected_outputs  , spei_provided_inputs     =  self._create_input_output_pairs(  spei_dict, configs_dict)
-        months_for_expected_outputs, months_for_provided_inputs =  self._create_input_output_pairs(months_dict, configs_dict)
+        #         IN               ,           OUT              :
+        spei_provided_inputs       , spei_expected_outputs       =  self._create_input_output_pairs(  spei_dict, configs_dict)
+        months_for_provided_inputs , months_for_expected_outputs =  self._create_input_output_pairs(months_dict, configs_dict)
         
         ###100% DATA PORTIONS##################################################
-        spei_expected_outputs   ['100%'] = np.concatenate( (spei_expected_outputs   ['80%'] ,
-                                                             spei_expected_outputs   ['20%']), axis=0)
-        spei_provided_inputs      ['100%'] = np.concatenate( (spei_provided_inputs      ['80%'] ,
-                                                             spei_provided_inputs      ['20%']), axis=0)
+        spei_expected_outputs       ['100%'] = np.concatenate( (spei_expected_outputs       ['80%'] ,
+                                                                spei_expected_outputs       ['20%']), axis=0)
+        spei_provided_inputs        ['100%'] = np.concatenate( (spei_provided_inputs        ['80%'] ,
+                                                                spei_provided_inputs        ['20%']), axis=0)
         
         months_for_expected_outputs ['100%'] = np.concatenate( (months_for_expected_outputs ['80%'] ,
-                                                             months_for_expected_outputs ['20%']), axis=0)
+                                                                months_for_expected_outputs ['20%']), axis=0)
         months_for_provided_inputs  ['100%'] = np.concatenate( (months_for_provided_inputs  ['80%'] ,
-                                                             months_for_provided_inputs  ['20%']), axis=0)
+                                                                months_for_provided_inputs  ['20%']), axis=0)
         #######################################################################
-        return (               spei_dict,             months_dict,
-                  spei_expected_outputs,     spei_provided_inputs,
+        return (                  spei_dict,                months_dict,
+                      spei_expected_outputs,       spei_provided_inputs,
                 months_for_expected_outputs, months_for_provided_inputs)
     
     def _train_test_split(self, train_size):
