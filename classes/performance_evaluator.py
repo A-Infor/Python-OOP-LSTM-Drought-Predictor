@@ -6,9 +6,9 @@ class PerformanceEvaluator():
     
     def __init__(self):
         COLS_CENTRAL = {
-            'Agrupamento'               : str,
-            'Municipio Treinado'        : str,
-            'Municipio Previsto'        : str,
+            'Agrupamento'               : str  ,
+            'Municipio Treinado'        : str  ,
+            'Municipio Previsto'        : str  ,
             'MAE 80%'                   : float,
             'MAE 20%'                   : float,
             'RMSE 80%'                  : float,
@@ -25,9 +25,9 @@ class PerformanceEvaluator():
         }
         
         COLS_BORDERING = {
-            'Agrupamento'               : str,
-            'Municipio Treinado'        : str,
-            'Municipio Previsto'        : str,
+            'Agrupamento'               : str  ,
+            'Municipio Treinado'        : str  ,
+            'Municipio Previsto'        : str  ,
             'MAE 100%'                  : float,
             'MAE 20%'                   : float,
             'RMSE 100%'                 : float,

@@ -40,9 +40,9 @@ class NeuralNetwork:
         # print(f'Started: creation of ML model {self.dataset.city_name}')
         model = tf.keras.Sequential()
         model.add(tf.keras.Input       (shape=self.configs_dict['input_shape' ]))
-        model.add(tf.keras.layers.LSTM (      self.configs_dict['hidden_units'], activation=self.configs_dict['activation'][0]))
+        model.add(tf.keras.layers.LSTM (          self.configs_dict['hidden_units'], activation=self.configs_dict['activation'][0]))
         for _ in range(3):
-            model.add(tf.keras.layers.Dense(units=self.configs_dict['dense_units'], activation=self.configs_dict['activation'][1]))
+            model.add(tf.keras.layers.Dense(units=self.configs_dict['dense_units' ], activation=self.configs_dict['activation'][1]))
         model.compile(loss=self.configs_dict['loss'], metrics=self.configs_dict['metrics'], optimizer=self.configs_dict['optimizer'])
         # print(f'Ended: creation of ML model {self.dataset.city_name}')
         
@@ -51,8 +51,8 @@ class NeuralNetwork:
     def _train_ml_model(self, spei_expected_outputs, spei_provided_inputs):
         print(f'\nStarted: training of ML model {self.dataset.city_name} (may take a while)')
         history = self.model.fit(
-            spei_expected_outputs['80%'],
-            spei_provided_inputs   ['80%'],
+            spei_expected_outputs ['80%'],
+            spei_provided_inputs  ['80%'],
             epochs=self.configs_dict['numberOfEpochs'], batch_size=1, verbose=0)
         self.has_trained = True
         print(f'Ended  : training of ML model {self.dataset.city_name}')
@@ -67,8 +67,8 @@ class NeuralNetwork:
         else: is_model = False
         
         
-        (               spei_dict,             months_dict,
-           spei_expected_outputs,     spei_provided_inputs,
+        (               spei_dict   ,             months_dict   ,
+           spei_expected_outputs    ,     spei_provided_inputs  ,
          months_for_expected_outputs, months_for_provided_inputs) = dataset.format_data_for_model(self.configs_dict)
        
         split_position = len(spei_dict['80%'])

@@ -45,15 +45,14 @@ class Plotter:
         # https://github.com/A-Infor/Python-OOP-LSTM-Drought-Predictor/issues/7
         # self.showTaylorDiagrams         (metrics_df                             , city_cluster_name, city_for_training, city_for_predicting)
         
-        # ValueError: operands could not be broadcast together with shapes (46,6,1) (46,6):
-        self.showResidualPlots          (is_model         , spei_expected_outputs, spei_predicted_values,
-                                         city_cluster_name, city_for_training   , city_for_predicting  )
-        # self.showR2ScatterPlots         (is_model         , spei_expected_outputs, spei_predicted_values,
-        #                                  city_cluster_name, city_for_training   , city_for_predicting  )
-        # self.showPredictionsDistribution(is_model         , spei_expected_outputs, spei_predicted_values,
-        #                                  city_cluster_name, city_for_training   , city_for_predicting  )
-        # self.showPredictionResults      (is_model         , spei_expected_outputs, spei_predicted_values , monthForPredicted_dict,
-        #                                  city_cluster_name, city_for_training  , city_for_predicting)
+        self.showResidualPlots           (is_model         , spei_expected_outputs, spei_predicted_values,
+                                          city_cluster_name, city_for_training    , city_for_predicting  )
+        self.showR2ScatterPlots          (is_model         , spei_expected_outputs, spei_predicted_values,
+                                          city_cluster_name, city_for_training    , city_for_predicting  )
+        self.showPredictionsDistribution (is_model         , spei_expected_outputs, spei_predicted_values,
+                                          city_cluster_name, city_for_training    , city_for_predicting  )
+        self.showPredictionResults       (is_model         , spei_expected_outputs, spei_predicted_values , monthForPredicted_dict,
+                                          city_cluster_name, city_for_training   , city_for_predicting)
     
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
     # def plotMetricsPlots(self, metrics_df):

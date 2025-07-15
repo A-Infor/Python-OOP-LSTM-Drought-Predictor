@@ -29,7 +29,7 @@ class Dataset:
         #(SPEI/months)_dict.keys() = ['80%', '20%']
         spei_dict                  , months_dict                = self._train_test_split(configs_dict['parcelDataTrain'])
         
-        #         IN               ,           OUT              :
+        #         IN               ,           OUT               :
         spei_provided_inputs       , spei_expected_outputs       =  self._create_input_output_pairs(  spei_dict, configs_dict)
         months_for_provided_inputs , months_for_expected_outputs =  self._create_input_output_pairs(months_dict, configs_dict)
         
