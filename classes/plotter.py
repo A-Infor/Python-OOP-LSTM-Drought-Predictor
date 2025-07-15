@@ -113,6 +113,7 @@ class Plotter:
         
         ###ADJUSTMENTS OF INPUTS###############################################
         spei_provided_inputs['100%']  = spei_provided_inputs['100%'].flatten()
+        spei_provided_inputs[ '20%']  = spei_provided_inputs[ '20%'].flatten()
         
         if is_model: spei_predicted_values['100%'] = np.append(spei_predicted_values[ '80%'],
                                                                spei_predicted_values[ '20%'])
@@ -130,11 +131,11 @@ class Plotter:
         
         spei_delta     = spei_max_value - spei_min_value
         ###CALCULATIONS########################################################
-        true_values_denormalized_dict['100%'] = (spei_provided_inputs ['100%'] * spei_delta + spei_min_value)
-        true_values_denormalized_dict[ '20%'] = (spei_provided_inputs [ '20%'] * spei_delta + spei_min_value)
+        true_values_denormalized_dict['100%'] = (spei_provided_inputs ['100%']           * spei_delta + spei_min_value)
+        true_values_denormalized_dict[ '20%'] = (spei_provided_inputs [ '20%']           * spei_delta + spei_min_value)
         
-        predictions_denormalized_dict['100%'] = (spei_predicted_values['100%'] * spei_delta + spei_min_value)
-        predictions_denormalized_dict[ '20%'] = (spei_predicted_values[ '20%'] * spei_delta + spei_min_value)
+        predictions_denormalized_dict['100%'] = (spei_predicted_values['100%']           * spei_delta + spei_min_value)
+        predictions_denormalized_dict[ '20%'] = (spei_predicted_values[ '20%'].flatten() * spei_delta + spei_min_value)
         
         return true_values_denormalized_dict, predictions_denormalized_dict
     
@@ -143,7 +144,7 @@ class Plotter:
         
         (trueValues_denormalized ,
          predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
-        
+        ###100%################################################################
         reshapedMonth = np.append(months_for_provided_inputs['80%'], months_for_provided_inputs['20%'])
     
         plt.figure ()
@@ -153,18 +154,34 @@ class Plotter:
         plt.legend (['Verdadeiros', 'Previstos'])
         plt.xlabel ('Data')
         plt.ylabel ('SPEI')
-        plt.title  (f'{city_for_predicting}:\nvalores verdadeiros e previstos para o final das séries')
+        plt.title  (f'{city_for_predicting}:\nvalores verdadeiros e previstos de SPEI (100%)')
         #plt.show()
         
-        self._saveFig(plt, 'Previsao', city_cluster_name, city_for_training, city_for_predicting)
+        self._saveFig(plt, 'Previsao 100%', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
+        ###20%#################################################################
+        reshapedMonth = months_for_provided_inputs['20%'].flatten()
+    
+        plt.figure ()
+        # ValueError: x and y can be no greater than 2D, but have shapes (11, 6, 1) and (11, 6):
+        plt.plot   (reshapedMonth,  trueValues_denormalized[ '20%'])
+        plt.plot   (reshapedMonth, predictions_denormalized[ '20%'])
+        plt.legend (['Verdadeiros', 'Previstos'])
+        plt.xlabel ('Data')
+        plt.ylabel ('SPEI')
+        plt.title  (f'{city_for_predicting}:\nvalores verdadeiros e previstos de SPEI (20%)')
+        #plt.show()
+        
+        self._saveFig(plt, 'Previsao 20%', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+        #######################################################################
     
     def showPredictionsDistribution(self, is_model   , spei_provided_inputs, spei_predicted_values,
                                     city_cluster_name, city_for_training   , city_for_predicting  ):
         
         (trueValues_denormalized ,
          predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
-    
+        ###100%################################################################
         plt.figure ()
         plt.scatter(x =  trueValues_denormalized['100%'],
                     y = predictions_denormalized['100%'],
@@ -177,7 +194,7 @@ class Plotter:
         
         self._saveFig(plt, 'distribuiçãoDoSPEI 100%', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
-        #######################################################################
+        ###20%#################################################################
         plt.figure ()
         plt.scatter(x =  trueValues_denormalized[ '20%'],
                     y = predictions_denormalized[ '20%'],
@@ -190,6 +207,7 @@ class Plotter:
         
         self._saveFig(plt, 'distribuiçãoDoSPEI 20%', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
+        #######################################################################
 
     def drawModelLineGraph(self, history, city_cluster_name, city_for_training):
         
