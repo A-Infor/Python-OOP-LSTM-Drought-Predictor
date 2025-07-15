@@ -170,12 +170,25 @@ class Plotter:
                     y = predictions_denormalized['100%'],
                     color=['white'],  marker='^', edgecolors='black')
         plt.xlabel ('SPEI Verdadeiros')
-        plt.ylabel ('SPEI Previstos')
-        plt.axline ((0, 0), slope=1)
-        plt.title  (f'{city_for_predicting}: SPEI (distribuição)')
+        plt.ylabel ('SPEI Previstos'  )
+        plt.axline ( (0, 0) , slope=1 )
+        plt.title  (f'{city_for_predicting}: SPEI (distribuição 100%)')
         #plt.show()
         
-        self._saveFig(plt, 'distribuiçãoDoSPEI', city_cluster_name, city_for_training, city_for_predicting)
+        self._saveFig(plt, 'distribuiçãoDoSPEI 100%', city_cluster_name, city_for_training, city_for_predicting)
+        plt.close()
+        #######################################################################
+        plt.figure ()
+        plt.scatter(x =  trueValues_denormalized[ '20%'],
+                    y = predictions_denormalized[ '20%'],
+                    color=['white'],  marker='D', edgecolors='black')
+        plt.xlabel ('SPEI Verdadeiros')
+        plt.ylabel ('SPEI Previstos'  )
+        plt.axline ( (0, 0) , slope=1 )
+        plt.title  (f'{city_for_predicting}: SPEI (distribuição 20%)')
+        #plt.show()
+        
+        self._saveFig(plt, 'distribuiçãoDoSPEI 20%', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
 
     def drawModelLineGraph(self, history, city_cluster_name, city_for_training):
