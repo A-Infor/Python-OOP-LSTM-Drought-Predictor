@@ -114,9 +114,9 @@ class Plotter:
         ###ADJUSTMENTS OF INPUTS###############################################
         spei_provided_inputs['100%']  = spei_provided_inputs['100%'].flatten()
         
-        if is_model: spei_predicted_values['100%'] = np.append(spei_predicted_values['80%'],
-                                                                        spei_predicted_values['20%'])
-        else       : spei_predicted_values['100%'] = spei_predicted_values['100%'].flatten()
+        if is_model: spei_predicted_values['100%'] = np.append(spei_predicted_values[ '80%'],
+                                                               spei_predicted_values[ '20%'])
+        else       : spei_predicted_values['100%'] =           spei_predicted_values['100%'].flatten()
         
         ###PREPARATIVES FOR OUTPUT#############################################
         RELEVANT_PORTIONS             = ['100%', '20%']
@@ -129,14 +129,14 @@ class Plotter:
         spei_min_value = np.min(self.speiValues)
         
         spei_delta     = spei_max_value - spei_min_value
-        #######################################################################
-        
-        # BOTH 100% AND 20% NEEDS TO BE CALCULATED!
+        ###CALCULATIONS########################################################
         true_values_denormalized_dict['100%'] = (spei_provided_inputs ['100%'] * spei_delta + spei_min_value)
-        predictions_denormalized_dict['100%'] = (spei_predicted_values['100%'] * spei_delta + spei_min_value)
+        true_values_denormalized_dict[ '20%'] = (spei_provided_inputs [ '20%'] * spei_delta + spei_min_value)
         
-        # BOTH 100% AND 20% NEEDS TO BE RETURNED!
-        return true_values_denormalized_dict['100%'], predictions_denormalized_dict['100%']
+        predictions_denormalized_dict['100%'] = (spei_predicted_values['100%'] * spei_delta + spei_min_value)
+        predictions_denormalized_dict[ '20%'] = (spei_predicted_values[ '20%'] * spei_delta + spei_min_value)
+        
+        return true_values_denormalized_dict, predictions_denormalized_dict
     
     def showPredictionResults(self      ,    is_model   , spei_provided_inputs, spei_predicted_values,
                               months_for_provided_inputs, city_cluster_name   , city_for_training    , city_for_predicting):
@@ -147,8 +147,8 @@ class Plotter:
         reshapedMonth = np.append(months_for_provided_inputs['80%'], months_for_provided_inputs['20%'])
     
         plt.figure ()
-        plt.plot   (reshapedMonth,  trueValues_denormalized)
-        plt.plot   (reshapedMonth, predictions_denormalized)
+        plt.plot   (reshapedMonth,  trueValues_denormalized['100%'])
+        plt.plot   (reshapedMonth, predictions_denormalized['100%'])
         plt.axvline(months_for_provided_inputs['80%'][-1][-1], color='r')
         plt.legend (['Verdadeiros', 'Previstos'])
         plt.xlabel ('Data')
@@ -166,8 +166,8 @@ class Plotter:
          predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
     
         plt.figure ()
-        plt.scatter(x = trueValues_denormalized ,
-                    y = predictions_denormalized,
+        plt.scatter(x =  trueValues_denormalized['100%'],
+                    y = predictions_denormalized['100%'],
                     color=['white'],  marker='^', edgecolors='black')
         plt.xlabel ('SPEI Verdadeiros')
         plt.ylabel ('SPEI Previstos')
