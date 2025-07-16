@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 class Dataset:
     
-    DATA_TYPES_LIST = ['80%', '20%'] # '100%' is made out of 80% + 20% through 'concatenate'
+    DATA_PORTION_TYPES = ['80%', '20%'] # '100%' is made out of 80% + 20% through 'concatenate'
     
     def __init__(self, city_name, city_cluster_name, root_dir, xlsx):
         self.city_name         = city_name
@@ -50,8 +50,8 @@ class Dataset:
     
     def _train_test_split(self, train_size):
         
-        spei_dict   = dict.fromkeys(Dataset.DATA_TYPES_LIST)
-        months_dict = dict.fromkeys(Dataset.DATA_TYPES_LIST)
+        spei_dict   = dict.fromkeys(Dataset.DATA_PORTION_TYPES)
+        months_dict = dict.fromkeys(Dataset.DATA_PORTION_TYPES)
         
         spei_dict  ['100%'] = self.get_spei_normalized()
         months_dict['100%'] = self.get_months         ()
@@ -68,22 +68,22 @@ class Dataset:
         window_gap  = configs_dict['total_points']
         dense_units = configs_dict['dense_units' ]
         
-        input_dict  = dict.fromkeys(Dataset.DATA_TYPES_LIST)
-        output_dict = dict.fromkeys(Dataset.DATA_TYPES_LIST)
+        input_dict  = dict.fromkeys(Dataset.DATA_PORTION_TYPES)
+        output_dict = dict.fromkeys(Dataset.DATA_PORTION_TYPES)
         
-        for train_or_test in Dataset.DATA_TYPES_LIST:
+        for data_portion_type in Dataset.DATA_PORTION_TYPES:
             # Data → sliding windows (with overlaps):
-            windows = np.lib.stride_tricks.sliding_window_view(data_dict[train_or_test], window_gap)
+            windows = np.lib.stride_tricks.sliding_window_view(data_dict[data_portion_type], window_gap)
             
             # -overlaps by selecting only every 'window_gap'-th window:
             windows = windows[::window_gap]
             
             # Last 'dense_units' elements from each window → output;
             # Remaining elements in each window            → input :
-            output_dict[train_or_test] = windows[ : , -dense_units :              ]
-            input_dict [train_or_test] = windows[ : ,              : -dense_units ]
+            output_dict[data_portion_type] = windows[ : , -dense_units :              ]
+            input_dict [data_portion_type] = windows[ : ,              : -dense_units ]
             
             # +new dimension at the end of the array:
-            input_dict[train_or_test] = input_dict[train_or_test][..., np.newaxis]
+            input_dict[data_portion_type] = input_dict[data_portion_type][..., np.newaxis]
         
         return input_dict, output_dict

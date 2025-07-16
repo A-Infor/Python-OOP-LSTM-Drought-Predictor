@@ -39,7 +39,7 @@ class NeuralNetwork:
     def _create_ml_model(self):
         # print(f'Started: creation of ML model {self.dataset.city_name}')
         model = tf.keras.Sequential()
-        model.add(tf.keras.Input       (shape=self.configs_dict['input_shape' ]))
+        model.add(tf.keras.Input       (    shape=self.configs_dict['input_shape' ]))
         model.add(tf.keras.layers.LSTM (          self.configs_dict['hidden_units'], activation=self.configs_dict['activation'][0]))
         for _ in range(3):
             model.add(tf.keras.layers.Dense(units=self.configs_dict['dense_units' ], activation=self.configs_dict['activation'][1]))
@@ -65,7 +65,6 @@ class NeuralNetwork:
               dataset  = self.dataset
               is_model = True
         else: is_model = False
-        
         
         (               spei_dict   ,             months_dict   ,
            spei_expected_outputs    ,     spei_provided_inputs  ,

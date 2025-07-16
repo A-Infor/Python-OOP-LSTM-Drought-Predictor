@@ -8,8 +8,8 @@ import numpy               as       np
 
 class Plotter:
     
-    METRICS_TYPES_CENTRAL   = [ '80%', '20%']
-    METRICS_TYPES_BORDERING = ['100%', '20%']
+    METRICS_PORTIONS_CENTRAL   = [ '80%', '20%']
+    METRICS_PORTIONS_BORDERING = ['100%', '20%']
     
     def __init__(self, dataset):
         self.dataset              = dataset
@@ -255,31 +255,31 @@ class Plotter:
             residuals        = {'100%': true_values_dict['100%'] - predicted_values_dict['100%'],
                                  '20%': true_values_dict[ '20%'] - predicted_values_dict[ '20%']}
         
-        for training_or_testing in Plotter.METRICS_TYPES_CENTRAL if is_model else Plotter.METRICS_TYPES_BORDERING:
-            plt.scatter(predicted_values_dict[training_or_testing], residuals[training_or_testing], alpha=0.5)
+        for data_portion_type in Plotter.METRICS_PORTIONS_CENTRAL if is_model else Plotter.METRICS_PORTIONS_BORDERING:
+            plt.scatter(predicted_values_dict[data_portion_type], residuals[data_portion_type], alpha=0.5)
             plt.axhline(y=0, color='r', linestyle='--')
             plt.xlabel('Predicted Values')
             plt.ylabel('Residuals')
-            plt.title (f'Residual Plot for {training_or_testing} data.\nModel {city_for_training} applied to {city_for_predicting}.')
+            plt.title (f'Residual Plot for {data_portion_type} data.\nModel {city_for_training} applied to {city_for_predicting}.')
             
-            self._saveFig(plt, f'Residual Plots {training_or_testing}', city_cluster_name, city_for_training, city_for_predicting)
+            self._saveFig(plt, f'Residual Plots {data_portion_type}', city_cluster_name, city_for_training, city_for_predicting)
             plt.close()
     
     def showR2ScatterPlots(self, is_model, true_values_dict, predicted_values_dict, city_cluster_name, city_for_training, city_for_predicting):
-        for training_or_testing in Plotter.METRICS_TYPES_CENTRAL if is_model else Plotter.METRICS_TYPES_BORDERING:
-            plt.scatter(true_values_dict[training_or_testing], predicted_values_dict[training_or_testing], label = 'R²')
+        for data_portion_type in Plotter.METRICS_PORTIONS_CENTRAL if is_model else Plotter.METRICS_PORTIONS_BORDERING:
+            plt.scatter(true_values_dict[data_portion_type], predicted_values_dict[data_portion_type], label = 'R²')
             
             # Generates a single line by creating `x_vals`, a sequence of 100 evenly spaced values between the min and max values in true_values
-            flattened_values = np.ravel(true_values_dict[training_or_testing])
+            flattened_values = np.ravel(true_values_dict[data_portion_type])
             x_vals = np.linspace(min(flattened_values), max(flattened_values), 100)
             plt.plot(x_vals, x_vals, color='red', label='x=y')  # Line will only appear once
             
-            plt.title (f'R² {training_or_testing} data. Model {city_for_training} applied to {city_for_predicting}.')
+            plt.title (f'R² {data_portion_type} data. Model {city_for_training} applied to {city_for_predicting}.')
             plt.xlabel('True values')
             plt.ylabel('Predicted values')
             plt.legend()
                 
-            self._saveFig(plt, f'R² Scatter Plot {training_or_testing}', city_cluster_name, city_for_training, city_for_predicting)
+            self._saveFig(plt, f'R² Scatter Plot {data_portion_type}', city_cluster_name, city_for_training, city_for_predicting)
             plt.close()
 
     # Disabled, as these are not going to be used on Anderson's masters dissertation:
