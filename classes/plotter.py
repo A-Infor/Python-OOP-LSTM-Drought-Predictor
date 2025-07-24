@@ -109,11 +109,11 @@ class Plotter:
         self._saveFig(plt, 'SPEI Data (test)', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
     
-    def _calculateDenormalizedValues(self, is_model, spei_provided_inputs, spei_predicted_values):
+    def _calculateDenormalizedValues(self, is_model, spei_expected_outputs, spei_predicted_values):
         
         ###ADJUSTMENTS OF INPUTS###############################################
-        spei_provided_inputs['100%']  = spei_provided_inputs['100%'].flatten()
-        spei_provided_inputs[ '20%']  = spei_provided_inputs[ '20%'].flatten()
+        spei_expected_outputs['100%']  = spei_expected_outputs['100%'].flatten()
+        spei_expected_outputs[ '20%']  = spei_expected_outputs[ '20%'].flatten()
         
         if is_model: spei_predicted_values['100%'] = np.append(spei_predicted_values[ '80%'],
                                                                spei_predicted_values[ '20%'])
@@ -131,19 +131,19 @@ class Plotter:
         
         spei_delta     = spei_max_value - spei_min_value
         ###CALCULATIONS########################################################
-        true_values_denormalized_dict['100%'] = (spei_provided_inputs ['100%']           * spei_delta + spei_min_value)
-        true_values_denormalized_dict[ '20%'] = (spei_provided_inputs [ '20%']           * spei_delta + spei_min_value)
+        true_values_denormalized_dict['100%'] = (spei_expected_outputs ['100%']           * spei_delta + spei_min_value)
+        true_values_denormalized_dict[ '20%'] = (spei_expected_outputs [ '20%']           * spei_delta + spei_min_value)
         
         predictions_denormalized_dict['100%'] = (spei_predicted_values['100%']           * spei_delta + spei_min_value)
         predictions_denormalized_dict[ '20%'] = (spei_predicted_values[ '20%'].flatten() * spei_delta + spei_min_value)
         
         return true_values_denormalized_dict, predictions_denormalized_dict
     
-    def showPredictionResults(self      ,    is_model   , spei_provided_inputs, spei_predicted_values,
+    def showPredictionResults(self      ,    is_model   , spei_expected_outputs, spei_predicted_values,
                               months_for_expected_outputs, city_cluster_name   , city_for_training    , city_for_predicting):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_expected_outputs, spei_predicted_values)
         ###100%################################################################
         reshapedMonth = np.append(months_for_expected_outputs['80%'], months_for_expected_outputs['20%'])
     
@@ -176,11 +176,11 @@ class Plotter:
         plt.close()
         #######################################################################
     
-    def showPredictionsDistribution(self, is_model   , spei_provided_inputs, spei_predicted_values,
+    def showPredictionsDistribution(self, is_model   , spei_expected_outputs, spei_predicted_values,
                                     city_cluster_name, city_for_training   , city_for_predicting  ):
         
         (trueValues_denormalized ,
-         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
+         predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_expected_outputs, spei_predicted_values)
         ###100%################################################################
         plt.figure ()
         plt.scatter(x =  trueValues_denormalized['100%'],
