@@ -140,17 +140,17 @@ class Plotter:
         return true_values_denormalized_dict, predictions_denormalized_dict
     
     def showPredictionResults(self      ,    is_model   , spei_provided_inputs, spei_predicted_values,
-                              months_for_provided_inputs, city_cluster_name   , city_for_training    , city_for_predicting):
+                              months_for_expected_outputs, city_cluster_name   , city_for_training    , city_for_predicting):
         
         (trueValues_denormalized ,
          predictions_denormalized) = self._calculateDenormalizedValues(is_model, spei_provided_inputs, spei_predicted_values)
         ###100%################################################################
-        reshapedMonth = np.append(months_for_provided_inputs['80%'], months_for_provided_inputs['20%'])
+        reshapedMonth = np.append(months_for_expected_outputs['80%'], months_for_expected_outputs['20%'])
     
         plt.figure ()
         plt.plot   (reshapedMonth,  trueValues_denormalized['100%'])
         plt.plot   (reshapedMonth, predictions_denormalized['100%'])
-        plt.axvline(months_for_provided_inputs['80%'][-1][-1], color='r')
+        plt.axvline(months_for_expected_outputs['80%'][-1][-1], color='r')
         plt.legend (['Verdadeiros', 'Previstos'])
         plt.xlabel ('Data')
         plt.ylabel ('SPEI')
@@ -160,7 +160,7 @@ class Plotter:
         self._saveFig(plt, 'Previsao 100%', city_cluster_name, city_for_training, city_for_predicting)
         plt.close()
         ###20%#################################################################
-        reshapedMonth = months_for_provided_inputs['20%'].flatten()
+        reshapedMonth = months_for_expected_outputs['20%'].flatten()
     
         plt.figure ()
         # ValueError: x and y can be no greater than 2D, but have shapes (11, 6, 1) and (11, 6):
