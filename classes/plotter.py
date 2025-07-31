@@ -151,10 +151,10 @@ class Plotter:
         plt.plot   (reshapedMonth,  trueValues_denormalized['100%'])
         plt.plot   (reshapedMonth, predictions_denormalized['100%'])
         plt.axvline(months_for_expected_outputs['80%'][-1][-1], color='r')
-        plt.legend (['Verdadeiros', 'Previstos'])
-        plt.xlabel ('Data')
+        plt.legend (['Real', 'Predicted'])
+        plt.xlabel ('Year')
         plt.ylabel ('SPEI')
-        plt.title  (f'{city_for_predicting}:\nvalores verdadeiros e previstos de SPEI (100%)')
+        plt.title  (f'Model {city_for_training} applied to {city_for_predicting}:\nreal and predicted SPEI values (100%\'s)')
         #plt.show()
         
         self._saveFig(plt, 'Previsao 100%', city_cluster_name, city_for_training, city_for_predicting)
@@ -166,10 +166,10 @@ class Plotter:
         # ValueError: x and y can be no greater than 2D, but have shapes (11, 6, 1) and (11, 6):
         plt.plot   (reshapedMonth,  trueValues_denormalized[ '20%'])
         plt.plot   (reshapedMonth, predictions_denormalized[ '20%'])
-        plt.legend (['Verdadeiros', 'Previstos'])
-        plt.xlabel ('Data')
+        plt.legend (['Real', 'Predicted'])
+        plt.xlabel ('Year')
         plt.ylabel ('SPEI')
-        plt.title  (f'{city_for_predicting}:\nvalores verdadeiros e previstos de SPEI (20%)')
+        plt.title  (f'Model {city_for_training} applied to {city_for_predicting}:\nreal and predicted SPEI values (20%\'s)')
         #plt.show()
         
         self._saveFig(plt, 'Previsao 20%', city_cluster_name, city_for_training, city_for_predicting)
@@ -186,10 +186,10 @@ class Plotter:
         plt.scatter(x =  trueValues_denormalized['100%'],
                     y = predictions_denormalized['100%'],
                     color=['white'],  marker='^', edgecolors='black')
-        plt.xlabel ('SPEI Verdadeiros')
-        plt.ylabel ('SPEI Previstos'  )
+        plt.xlabel ('Real SPEI')
+        plt.ylabel ('Predicted SPEI'  )
         plt.axline ( (0, 0) , slope=1 )
-        plt.title  (f'{city_for_predicting}: SPEI (distribuição 100%)')
+        plt.title  (f'Model {city_for_training} applied to {city_for_predicting}:\nSPEI (100%\'s distribution)')
         #plt.show()
         
         self._saveFig(plt, 'distribuiçãoDoSPEI 100%', city_cluster_name, city_for_training, city_for_predicting)
@@ -199,10 +199,10 @@ class Plotter:
         plt.scatter(x =  trueValues_denormalized[ '20%'],
                     y = predictions_denormalized[ '20%'],
                     color=['white'],  marker='D', edgecolors='black')
-        plt.xlabel ('SPEI Verdadeiros')
-        plt.ylabel ('SPEI Previstos'  )
+        plt.xlabel ('Real SPEI')
+        plt.ylabel ('Predicted SPEI'  )
         plt.axline ( (0, 0) , slope=1 )
-        plt.title  (f'{city_for_predicting}: SPEI (distribuição 20%)')
+        plt.title  (f'Model {city_for_training} applied to {city_for_predicting}:\nSPEI (20%\'s distribution)')
         #plt.show()
         
         self._saveFig(plt, 'distribuiçãoDoSPEI 20%', city_cluster_name, city_for_training, city_for_predicting)
